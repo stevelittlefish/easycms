@@ -17,6 +17,7 @@ import permissions
 import cmsconfig
 from constants import posttypes
 import create_tables
+import auth
 
 __author__ = 'Stephen Brown (Little Fish Solutions LTD)'
 
@@ -85,7 +86,10 @@ def init_app_behaviours(app):
     def add_global_context():
         return {
             'date': datetime.datetime.now(),
-            'CACHE_BUSTER': CACHE_BUSTER
+            'CACHE_BUSTER': CACHE_BUSTER,
+            'logged_in_name': auth.get_full_name(),
+            'logged_in_email': auth.get_email(),
+            'backend': auth.is_backend_user()
         }
 
     @app.errorhandler(HTTPException)
@@ -93,7 +97,7 @@ def init_app_behaviours(app):
         if e.code >= 300 and e.code < 400:
             return redirect(e.new_url, e.code)
 
-        return render_template('main/http_exception.html', e=e), e.code
+        return render_template('http_exception.html', e=e), e.code
 
     @app.errorhandler(Exception)
     def catch_all(e):

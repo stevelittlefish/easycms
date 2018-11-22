@@ -138,6 +138,8 @@ def check_password(password, plain_password):
 
 def create_session(user):
     """Creates the session for an authenticated user"""
+    from permissions import Permissions
+
     # Get items from session that we need to persist
     dest = get_login_dest()
 
@@ -148,10 +150,8 @@ def create_session(user):
     session[KEY_LOGIN_DEST] = dest
 
     # Create the auth record and add to session
-    from permissions import Permissions
-    permission_names = [p.name for p in user.permissions]
-    auth_record = create_auth_record(user.email_address, user.id, user.role.id, permission_names, user.full_name,
-                                     user.has_permission(Permissions.backend))
+    auth_record = create_auth_record(user.email_address, user.id, user.role.id, user.full_name,
+                                     user.has_permission(Permissions.admin))
     session[KEY_AUTH] = auth_record
 
 
@@ -159,14 +159,13 @@ def destroy_session():
     session.clear()
 
 
-def create_auth_record(email, user_id, role_id, permissions, full_name, backend):
+def create_auth_record(email, user_id, role_id, full_name, backend):
     """
     Create the auth record, store it in the session and return it
 
     :param email: The user's email address
     :param user_id: The user's id
     :param role_id: The user's role id
-    :param permissions: List of permission names
     :param full_name: The user's full name
     :param backend: Does this user have the 'backend' permission?
 

@@ -41,9 +41,27 @@
 						</li>
 					</ul>
 					<ul class="navbar-nav">
-						<li class="nav-item navbar-text">
-							TODO
-						</li>
+						{% if logged_in_name %}
+							<li class="nav-item navbar-text">
+								Logged in as {{ logged_in_name }}
+							</li>
+							<li class="nav-item">
+								<a class="nav-link" href="{{ url_for('main.logout') }}">
+									Log Out
+								</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link" href="{{ url_for('easycms_editor.index') }}">
+									Edit Content
+								</a>
+							</li>
+						{% else %}
+							<li class="nav-item">
+								<a class="nav-link" href="{{ url_for('main.login') }}">
+									Log In
+								</a>
+							</li>
+						{% endif %}
 					</ul>
 				</div>
 			</div>

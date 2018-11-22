@@ -112,6 +112,11 @@ ul.links li, ul.list li {
 	margin: 50px auto 15px;
 }
 
+.login-panel {
+	max-width: 400px;
+	margin: 50px auto 15px;
+}
+
 .panel-heading h1 {
 	margin: 10px 0;
 }

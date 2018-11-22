@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}Log In{% endblock %}
+
+{% block h1 %}{% endblock %}
+
+{% block content %}
+
+	<div class="login-panel panel-default card">
+		<div class="panel-heading card-header">
+			<h1>Log In</h1>
+		</div>
+
+		<div class="panel-body card-body">
+			{% if error %}
+				<div class="alert alert-danger">{{ error }}</div>
+			{% endif %}
+
+			{{ form.render() }}
+		</div>
+	</div>
+
+{% endblock %}
