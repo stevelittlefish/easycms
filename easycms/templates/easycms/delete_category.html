@@ -1,0 +1,16 @@
+{% extends 'easycms/base.html' %}
+
+{% block easycms_title %}Delete Category{% endblock easycms_title %}
+
+{% block easycms_content %}
+	<div class="front-page content">
+		<div class="alert alert-warning">
+			Really delete category <strong>{{ category.name }}</strong>?
+		</div>
+
+		<form action="" method="post">
+			<input type="submit" class="btn btn-success" value="Delete">
+			<a href="{{ url_for('.view_categories') }}" class="btn btn-danger">Cancel</a>
+		</form>
+	</div>
+{% endblock easycms_content %}

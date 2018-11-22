@@ -1,0 +1,117 @@
+{% extends 'easycms/base.html' %}
+
+{% block easycms_title %}Preview Post: {{ post.title }}{% endblock %}
+
+{% block easycms_h1 %}{% endblock easycms_h1 %}
+
+{% block easycms_content %}
+	<div class="button-list">
+		<a class="btn btn-default" href="{{ url_for('.view_posts') }}">
+			<span class="glyphicon glyphicon-arrow-left"></span> Back to Posts
+		</a>
+		{% if access_control.can_edit_post() %}
+			<a class="btn btn-primary" href="{{ url_for('.edit_post', post_id=post.id) }}">
+				<span class="glyphicon glyphicon-pencil"></span> Edit {{ post.post_type | title }}
+			</a>
+		{% endif %}
+	</div>
+
+	<div class="preview">
+		<h1>{{ post.title }}</h1>
+		{% if not post.published %}
+			<h3 class="info text-center">Not Published</h3>
+		{% endif %}
+
+		<p class="tagline">
+			{{ post.tagline }}
+		</p>
+		{{ post.content | safe }}
+	</div>
+	
+	{% if settings.snippets_enabled %}
+		<h2 style="margin-top: 100px">Snippet Preview:</h2>
+
+		<div class="blog-snippet">
+			<a href="javascript: void(0);">
+				<img src="{{ post.get_snippet_image() }}" style="width: {{ settings.snippet_image_width }}px; height: {{ settings.snippet_image_height }}px;">
+			</a>
+
+			<div class="blog-snippet-content" style="width: {{ settings.snippet_image_width }}px; height: 200px;">
+				<div class="details">
+					{% if post.published %}
+						{{ post.published | easycms_format_date }}
+					{% else %}
+						(date goes here)
+					{% endif %}
+					by
+					<span class="author">{{ post.author.name }}</span>
+				</div>
+				<h4>{{ post.get_snippet_title() }}</h4>
+				<p>
+					{{ post.get_snippet_description() }}
+				</p>
+				<a href="javascript: void(0);" class="btn btn-primary">Read More</a>
+			</div>
+		</div>
+	{% endif %}
+	
+	<hr style="margin-top: 100px;">
+
+	<h4>Post Attributes:</h4>
+
+	<table class="table table-bordered" style="width: initial;">
+		<tr>
+			<th>Post Type</th>
+			<td>{{ post.post_type }} </td>
+		</tr>
+		<tr>
+			<th>category</th>
+			<td>category</td>
+		</tr>
+		<tr>
+			<th>Tags</th>
+			<td>
+				{% for tag in post.tags %}
+					<strong style="border: 1px solid #bbb">{{ tag.name }}</strong>
+				{% else %}
+					<span class="info">(none)</span>
+				{% endfor %}
+			</td>
+		</tr>
+		<tr>
+			<th>Author</th>
+			<td>{{ post.author.name }} </td>
+		</tr>
+		<tr>
+			<th>Created</th>
+			<td>{{ post.created | easycms_format_datetime }}</td>
+		</tr>
+		<tr>
+			<th>Published</th>
+			<td>
+				{% if post.published %}
+					<strong>{{ post.published | easycms_format_datetime }}</strong><br>
+				{% else %}
+					<span class="info">Not Published</span><br>
+				{% endif %}
+			</td>
+		</tr>
+		<tr>
+			<th>Code (URL Name)</th>
+			<td>{{ post.code }} </td>
+		</tr>
+		<tr>
+			<th>Description</th>
+			<td>{{ post.description }} </td>
+		</tr>
+		<tr>
+			<th>HTML Title</th>
+			<td>{{ post.get_html_title() }} </td>
+		</tr>
+		<tr>
+			<th>HTML Description</th>
+			<td>{{ post.get_html_description() }} </td>
+		</tr>
+	</table>
+{% endblock %}
+

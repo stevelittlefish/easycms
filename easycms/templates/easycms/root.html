@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		{% block easycms_head_contents %}{% endblock easycms_head_contents %}
+	</head>
+	<body>
+		<nav class="navbar navbar-inverse navbar-fixed-top">
+			<div class="container">
+				<div class="navbar-header">
+					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+					{% block easycms_home_link %}{% endblock easycms_home_link %}
+				</div>
+				<div id="navbar" class="collapse navbar-collapse">
+					<ul class="nav navbar-nav">
+						{% block easycms_main_menu %}{% endblock easycms_main_menu %}
+					</ul>
+					<ul class="nav navbar-nav navbar-right">
+						{% block easycms_logged_in_user %}{% endblock easycms_logged_in_user %}
+					</ul>
+				</div>
+			</div>
+		</nav>
+
+		<div class="container">
+			{% block easycms_flashed_alerts %}{% endblock easycms_flashed_alerts %}
+
+			{% block easycms_h1 %}{% endblock easycms_h1 %}
+			{% block easycms_content %}{% endblock easycms_content %}
+		</div>
+	</body>
+</html>

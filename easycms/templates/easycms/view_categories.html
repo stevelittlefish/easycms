@@ -1,0 +1,60 @@
+{% extends 'easycms/base.html' %}
+
+{% block easycms_title %}Categories{% endblock easycms_title %}
+
+{% block easycms_content %}
+	<div class="button-list">
+		<a class="btn btn-default" href="{{ url_for('.index') }}">
+			<span class="glyphicon glyphicon-arrow-left"></span> Content Editor Home
+		</a>
+		{% if access_control.can_edit_category() %}
+			<a class="btn btn-primary" href="{{ url_for('.edit_category') }}">
+				<span class="glyphicon glyphicon-plus"></span> Create Category
+			</a>
+		{% endif %}
+	</div>
+
+	<table class="table" style="width: auto;">
+		<thead>
+			<tr>
+				<th>Name</th>
+				<th>Post Type</th>
+				<th>URL</th>
+				<th></th>
+				<th></th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for category in categories %}
+				<tr>
+					<td>
+						{#
+						<a href="{{ url_for('.view_posts_by_category', nice_name=category.nice_name) }}">
+							{{ category.name }}
+						</a>
+						#}
+						{{ category.name }}
+					</td>
+					<td>
+						{{ category.post_type }}
+					</td>
+					<td>
+						{{ category.code }}
+					</td>
+					<td>
+						<a class="btn btn-xs btn-default" href="{{ url_for('.edit_category', post_type=category.post_type, code=category.code) }}">
+							edit
+						</a>
+					</td>
+					<td>
+						<a class="btn btn-xs btn-danger" href="{{ url_for('.delete_category', category_id=category.id) }}">
+							delete
+						</a>
+					</td>
+				</tr>
+			{% else %}
+				<tr><td class="info">(no categories)</td></tr>
+			{% endfor %}
+		</tbody>
+	</table>
+{% endblock easycms_content %}

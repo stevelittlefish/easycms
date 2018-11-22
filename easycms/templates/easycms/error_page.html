@@ -1,0 +1,28 @@
+{% extends 'easycms/base.html' %}
+
+{% block easycms_title %}Error - {{ title }}{% endblock easycms_title %}
+
+
+{% block easycms_h1 %}{% endblock easycms_h1 %}
+
+
+{% block easycms_content %}
+	<br><br>
+
+	<div class="alert alert-danger">
+		{% if title %}
+			<h1>{{ title }}</h1>
+			<hr>
+		{% endif %}
+		
+		{% if message %}
+			{% if preformat is defined and preformat %}
+				<pre>{{ message }}</pre>
+			{% else %}
+				{{ message }}
+			{% endif %}
+		{% else %}
+			(no error message)
+		{% endif %}
+	</div>
+{% endblock easycms_content %}

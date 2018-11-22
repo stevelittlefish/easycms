@@ -1,0 +1,94 @@
+{% extends base_template %}
+{% import 'easycms/macros.html' as macros %}
+
+
+{% block easycms_head_contents %}
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	
+	<title>{% block easycms_title %}{% endblock easycms_title %} | EasyCMS | {{ settings.website_name }}</title>
+
+	{% block easycms_head_css %}
+		<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">
+		
+		<link rel="stylesheet" href="{{ url_for('.static', filename='css/bootstrap.css') }}">
+		<link rel="stylesheet" href="{{ url_for('.static', filename='css/bootstrap-theme.css') }}">
+		<link rel="stylesheet" href="{{ url_for('.static', filename='css/jquery-ui.css') }}?c={{ CACHE_BUSTER }}">
+		<link rel="stylesheet" href="{{ url_for('.static', filename='cupertino/jquery-ui-1.10.3.custom.min.css') }}">
+		
+		<link rel="stylesheet" href="{{ url_for('.static', filename='css/main.css') }}?c={{ CACHE_BUSTER }}">
+		{% if settings.custom_stylesheet_url %}
+			<link rel="stylesheet" href="{{ settings.custom_stylesheet_url }}">
+		{% endif %}
+	{% endblock easycms_head_css %}
+	
+	{% block easycms_head_js %}
+		<script src="{{ url_for('.static', filename='js/jquery-3.2.1.min.js') }}"></script>
+		<script src="{{ url_for('.static', filename='js/jquery-ui.min.js') }}"></script>
+		<script src="{{ url_for('.static', filename='js/bootstrap.js') }}"></script>
+		
+		<script>
+			$(document).ready(function(){
+				$('.date-picker').datepicker({ dateFormat: 'dd/mm/yy' });
+			});
+		</script>
+	{% endblock easycms_head_js %}
+
+	{% block easycms_head_extra %}{% endblock %}
+{% endblock easycms_head_contents %}
+
+
+{% block easycms_home_link %}
+	<a class="navbar-brand" href="{{ url_for(settings.home_link_endpoint) }}">
+		{{ settings.home_link_text }}
+	</a>
+{% endblock easycms_home_link %}
+
+
+{% block easycms_main_menu %}
+	<li>
+		<a href="{{ url_for('.index') }}">
+			Content Editor Home
+		</a>
+	</li>
+	<li>
+		<a href="{{ url_for('.view_posts') }}">
+			Posts
+		</a>
+	</li>
+	<li>
+		<a href="{{ url_for('.view_pages') }}">
+			Pages
+		</a>
+	</li>
+	<li>
+		<a href="{{ url_for('.view_categories') }}">
+			Categories
+		</a>
+	</li>
+{% endblock easycms_main_menu %}
+
+
+{% block easycms_logged_in_user %}
+	{% if access_control.get_logged_in_cms_user() %}
+		{% if settings.logout_endpoint %}
+			<li><a href="{{ url_for(settings.logout_endpoint) }}">Log Out {{ access_control.get_logged_in_cms_user().name }}</a></li>
+		{% else %}	
+			<li><a>{{ access_control.get_logged_in_cms_user().name }}</a></li>
+		{% endif %}
+	{% endif %}
+{% endblock easycms_logged_in_user %}
+
+
+{% block easycms_flashed_alerts %}
+	{% with messages = get_flashed_messages(with_categories=true) %}
+		{% for category, message in messages %}
+			<div class="alert alert-{{ category }} space-before">{{ message }}</div>
+		{% endfor %}
+	{% endwith %}
+{% endblock easycms_flashed_alerts %}
+
+
+{% block easycms_h1 %}
+	<h1>{{ self.easycms_title() }}</h1>
+{% endblock easycms_h1 %}

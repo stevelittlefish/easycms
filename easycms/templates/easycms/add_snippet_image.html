@@ -1,0 +1,28 @@
+{% extends 'easycms/base.html' %}
+
+{% block easycms_title %}Add Custom Snippet Image{% endblock easycms_title %}
+
+{% block easycms_head_extra %}
+	<style>
+		img.preview {
+			max-height: 250px;
+			max-width: 400px;
+		}
+	</style>
+{% endblock easycms_head_extra %}
+
+
+{% block easycms_content %}
+	<div class="button-list">
+		<a class="btn btn-default" href="{{ url_for('.edit_post_snippet', post_id=post.id) }}">
+			<span class="glyphicon glyphicon-arrow-left"></span> Back to Edit Blog Post Snippet
+		</a>
+	</div>
+	
+	<p>
+		This page allows you to upload a separate image for the snippet of a post. The image
+		will automatically be cropped to the right size.
+	</p>
+
+	{{ form.render() }}
+{% endblock easycms_content %}

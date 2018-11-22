@@ -1,0 +1,44 @@
+{% extends 'easycms/base.html' %}
+
+{% block easycms_title %}Revision History: {{ page.title }}{% endblock easycms_title %}
+
+{% block easycms_content %}
+	<div class="button-list">
+		<a class="btn btn-default" href="{{ url_for('.edit_page', page_id=page.id) }}">
+			<span class="glyphicon glyphicon-arrow-left"></span> Back to Edit Blog Page
+		</a>
+		<a class="btn btn-default" href="{{ url_for('.view_page', page_id=page.id) }}">
+			<span class="glyphicon glyphicon-arrow-left"></span> View Page
+		</a>
+	</div>
+
+	<div class="content wide">
+		<div class="row">
+			<div class="col-lg-3 col-md-4 col-sm-5">
+				<ul class="links">
+					{% for h in page.revisions %}
+						<li {% if h.id == history.id %}style="font-weight: bold;"{% endif %}>
+							<a href="{{ url_for('.view_page_history', page_id=page.id, history_id=h.id) }}">
+								Revision {{ h.timestamp | easycms_format_datetime }}
+							</a>
+						</li>
+					{% endfor %}
+				</ul>
+			</div>
+			<div class="col-lg-9 col-md-8 col-sm-7">
+				<form method="post" action="">
+					<input type="submit" class="btn btn-primary" value="Restore This Revision">
+				</form>
+				<div class="preview">
+					<h5>Revision Date: <strong>{{ history.timestamp | easycms_format_datetime }}</strong></h5>
+					{% if history.revision_notes %}
+						<div class="alert alert-info">
+							{{ history.revision_notes }}
+						</div>
+					{% endif %}
+					{{ history.content | safe }}
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock easycms_content %}

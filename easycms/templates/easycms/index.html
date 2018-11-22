@@ -1,0 +1,40 @@
+{% extends 'easycms/base.html' %}
+
+{% block easycms_title %}{{ settings.website_name }} Content Editor{% endblock %}
+
+{% block easycms_h1 %}{% endblock %}
+
+{% block easycms_content %}
+	<div class="main-panel panel panel-default">
+		<div class="panel-heading">
+			<h1>{{ self.easycms_title() }}</h1>
+		</div>
+		<div class="panel-body">
+			<ul class="links">
+				{% if pages_enabled %}
+					<li>
+						<a href="{{ url_for('.view_pages') }}">
+							View / Edit Pages
+						</a>
+					</li>
+				{% endif %}
+				<li>
+					<a href="{{ url_for('.view_posts') }}">
+						View / Edit Posts
+					</a>
+				</li>
+				<li>
+					<a href="{{ url_for('.view_categories') }}">
+						View / Edit Categories
+					</a>
+				</li>
+				<li>
+					<a href="{{ url_for('flaskfilemanager.index') }}">
+						File Manager
+					</a>
+				</li>
+			</ul>
+		</div>
+	</div>
+{% endblock %}
+

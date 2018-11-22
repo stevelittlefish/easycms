@@ -1,0 +1,29 @@
+{% extends 'easycms/base.html' %}
+
+{% block easycms_title %}Edit SEO Details{% endblock easycms_title %}
+
+
+{% block easycms_content %}
+	<div class="button-list">
+		<a class="btn btn-default" href="{{ url_for('.edit_post', post_id=post.id) }}">
+			<span class="glyphicon glyphicon-arrow-left"></span> Back to Edit Blog Post
+		</a>
+		<a class="btn btn-default" href="{{ url_for('.view_post', post_id=post.id) }}">
+			<span class="glyphicon glyphicon-arrow-left"></span> View Post
+		</a>
+	</div>
+
+	{% if success %}
+		<div class="alert alert-success">{{ success }}</div>
+	{% else %}
+		<p>
+			Editing SEO details for post "<strong>{{ post.title }}</strong>".
+		</p>
+		<p>
+			Use this page to edit the title tag, and the meta (description) tag.
+		</p>
+		<div class="not-too-big">
+			{{ form.render() }}
+		</div>
+	{% endif %}
+{% endblock easycms_content %}

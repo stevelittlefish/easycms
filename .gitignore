@@ -1,0 +1,9 @@
+.ropeproject
+*.pyc
+MANIFEST
+dist
+*.swp
+easyforms.egg-info
+env
+out.log
+testapp/config.py

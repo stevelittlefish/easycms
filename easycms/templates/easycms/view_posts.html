@@ -1,0 +1,81 @@
+{% extends 'easycms/base.html' %}
+
+{% block easycms_title %}View Posts{% endblock %}
+
+{% block easycms_content %}
+	<div class="button-list">
+		<a class="btn btn-default" href="{{ url_for('.index') }}">
+			<span class="glyphicon glyphicon-arrow-left"></span> Content Editor Home
+		</a>
+		{% if access_control.can_edit_post() %}
+			{% for post_type in post_types %}
+				<a class="btn btn-primary" href="{{ url_for('.edit_post', post_type=post_type) }}">
+					<span class="glyphicon glyphicon-plus"></span> Create New {{ post_type | title }} Post
+				</a>
+			{% endfor %}
+		{% endif %}
+	</div>
+
+	<p>
+		{% if post_type %}
+			Only showing posts of type <strong>{{ post_type }}</strong>
+			<a class="btn btn-default btn-xs" href="{{ url_for('.view_posts') }}">
+				Show All Posts
+			</a>
+		{% else %}
+			Filter by Type:
+			{% for post_type in post_types %}
+				<a class="btn btn-default btn-xs" href="{{ url_for('.view_posts', post_type=post_type) }}">
+					{{ post_type }}
+				</a>
+			{% endfor %}
+		{% endif %}
+	</p>
+
+	<table class="table table-striped">
+		<thead>
+			<tr>
+				<th>Type</th>
+				<th>Title</th>
+				<th>Code</th>
+				<th>Category</th>
+				<th>Created</th>
+				<th>Published</th>
+				<th></th>
+			</tr>
+		</tbody>
+		<tbody>
+			{% for post in pager.items %}
+				<tr>
+					<td>{{ post.post_type }}</td>
+					<td>
+						<a href="{{ url_for('.view_post', post_id=post.id) }}">
+							<strong>{{ post.title }}</strong>
+						</a>
+					</td>
+					<td>{{ post.code }}</td>
+					<td>{{ post.category.name }}</td>
+					<td>{{ post.created | easycms_format_datetime_seconds }}</td>
+					<td>
+						{% if post.published %}
+							{{ post.published | easycms_format_datetime_seconds }}
+						{% else %}
+							<span class="info">(not published)</span>
+						{% endif %}
+					</td>
+					{% if access_control.can_edit_post() %}
+						<td>
+							<a href="{{ url_for('.edit_post', post_id=post.id) }}" class="btn btn-xs btn-default">
+								<span class="glyphicon glyphicon-pencil"></span>
+								edit
+							</a>
+						</td>
+					{% endif %}
+				</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+
+	{{ macros.pager(pager, prev_name='Newer', next_name='Older') }}
+{% endblock %}
+

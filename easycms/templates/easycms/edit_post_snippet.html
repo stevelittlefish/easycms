@@ -1,0 +1,96 @@
+{% extends 'easycms/base.html' %}
+
+{% block easycms_title %}Edit Snippet{% endblock easycms_title %}
+
+{% block easycms_head_extra %}
+	<style>
+		.table > tbody > tr > td {
+			vertical-align: middle;
+		}
+
+		.table > tbody > tr > td:first-child {
+			text-align: center;
+			width: 40px;
+		}
+
+		img.preview {
+			max-height: 250px;
+			max-width: 400px;
+		}
+	</style>
+{% endblock easycms_head_extra %}
+
+
+{% block easycms_content %}
+	<div class="button-list">
+		<a class="btn btn-default" href="{{ url_for('.edit_post', post_id=post.id) }}">
+			<span class="glyphicon glyphicon-arrow-left"></span> Back to Edit Blog Post
+		</a>
+		<a class="btn btn-default" href="{{ url_for('.view_post', post_id=post.id) }}">
+			<span class="glyphicon glyphicon-arrow-left"></span> View Post
+		</a>
+	</div>
+
+	{#
+	<h2>Current Snippet</h2>
+	<div class="blog-snippet-preview">
+		{{ macros.blog_snippet(post) }}
+	</div>
+	#}
+
+	<h2>
+		Editing Snippet for post "<strong>{{ post.title }}</strong>".
+	</h2>
+
+	<div class="max700">
+		{{ form.render_before_sections() }}
+		{{ form.render_section('main') }}
+
+		<div class="form-group   ">
+			<label class="col-sm-2 control-label">
+				Image
+			</label>
+
+			<div class="col-sm-10">
+				<table class="table table-bordered">
+					<tr>
+						<td>
+							<input type="radio" name="image" value="" checked>
+						</td>
+						<td>
+							{% if post.snippet_image %}
+								<img src="{{ post.snippet_image }}">
+								<div>(current image)</div>
+							{% else %}
+								<span class="info">(no image)</span>
+							{% endif %}
+						</td>
+					</tr>
+					{% for img in post.get_images() %}
+						<tr>
+							<td>
+								<input type="radio" name="image" value="{{ img }}" id="radio-{{ loop.index0 }}">
+							</td>
+							<td>
+								<label for="radio-{{ loop.index0 }}">
+									<img class="preview" src="{{ img }}">
+									<div>{{ img }}</div>
+								</label>
+							</td>
+						</tr>
+					{% endfor %}
+				</table>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-sm-offset-2 col-sm-10">
+				<p class="info">Add a new snippet image that is not in the current post.</p>
+				<a href="{{ url_for('.add_snippet_image', post_id=post.id) }}" class="btn btn-default add-snippet">
+					<span class="glyphicon glyphicon-plus"></span> Add Custom Snippet Image
+				</a>
+			</div>
+		</div>
+		<br>
+		{{ form.render_after_sections() }}
+	</div>
+{% endblock easycms_content %}
