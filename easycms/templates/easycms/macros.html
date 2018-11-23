@@ -52,55 +52,78 @@
 {% endmacro %}
 
 
-{% macro pager(pager, prev_name='prev', next_name='next') %}
-	<div class="text-center">
-		<ul class="pagination">
-			
-			{% if pager.has_prev %}
-				<li>
-					<a href="?page={{ pager.prev }}">
-						&larr;{{ prev_name }}
-					</a>
-				</li>
-			{% else %}
-				<li class="disabled">
-					<span>
-						&larr;{{ prev_name }}
-					</span>
-				</li>
-			{% endif %}
-		
-			{% for page in pager.page_link_numbers %}
-				{% if pager.page_number == page %}
-					<li class="active">
-						<span>{{ page }}</span>
-					</li>
-				{% elif page < pager.page_number - 5 or page > pager.page_number + 5 %}
-					<li class="pager-hidden-md">
-						<a href="?page={{ page }}">{{ page }}</a>
+{%- macro query_string_from_dict(args, overrides={}) -%}
+	{% set vars = namespace(first=True) %}
+	{%- for key, value in args.items() -%}
+		{%- if vars.first -%}{%- set vars.first = False -%}{%- else -%}&{%- endif -%}{{ key | urlencode }}={{ overrides.get(key, value) | urlencode }}
+	{%- endfor -%}
+	{%- for key, value in overrides.items() -%}
+		{%- if key not in args -%}
+			{%- if vars.first -%}{%- set vars.first = False -%}{%- else -%}&{%- endif -%}{{ key | urlencode }}={{ overrides.get(key, value) | urlencode }}
+		{%- endif -%}
+	{%- endfor -%}
+{%- endmacro -%}
+
+
+{%- macro page_link(page, args) -%}
+	?{{ query_string_from_dict(args, {'page': page}) }}
+{%- endmacro -%}
+
+
+{% macro pager(pager, prev_name='prev', next_name='next', preserve_args=True) %}
+	{% set args = request.args if preserve_args else {} %}
+	{% if not pager.empty %}
+		<nav>
+			<ul class="pagination justify-content-center">
+
+				{% if pager.has_prev %}
+					<li class="page-item">
+						<a class="page-link" href="{{ page_link(pager.prev, args) }}">
+							&larr;{{ prev_name }}
+						</a>
 					</li>
 				{% else %}
-					<li>
-						<a href="?page={{ page }}">{{ page }}</a>
+					<li class="page-item disabled">
+						<span class="page-link">
+							&larr;{{ prev_name }}
+						</span>
 					</li>
 				{% endif %}
-			{% endfor %}
-	
-			{% if pager.has_next %}
-				<li>
-					<a href="?page={{ pager.next }}">
-						{{ next_name }}&rarr;
-					</a>
-				</li>
-			{% else %}
-				<li class="disabled">
-					<span>
-						{{ next_name }}&rarr;
-					</span>
-				</li>
-			{% endif %}
-		
-		</ul>
-	</div>
+
+				{% for page in pager.page_link_numbers %}
+					{% if pager.page_number == page %}
+						<li class="page-item active">
+							<span class="page-link" href="javascript: void(0)" style="cursor: default;">
+								{{ page }}
+							</span>
+						</li>
+					{% elif page < pager.page_number - 5 or page > pager.page_number + 5 %}
+						<li class="page-item pager-hidden-md">
+							<a class="page-link" href="{{ page_link(page, args) }}">{{ page }}</a>
+						</li>
+					{% else %}
+						<li class="page-item">
+							<a class="page-link" href="{{ page_link(page, args) }}">{{ page }}</a>
+						</li>
+					{% endif %}
+				{% endfor %}
+
+				{% if pager.has_next %}
+					<li class="page-item">
+						<a class="page-link" href="{{ page_link(pager.next, args) }}">
+							{{ next_name }}&rarr;
+						</a>
+					</li>
+				{% else %}
+					<li class="page-item disabled">
+						<span class="page-link">
+							{{ next_name }}&rarr;
+						</span>
+					</li>
+				{% endif %}
+
+			</ul>
+		</nav>
+	{% endif %}
 {% endmacro %}
 

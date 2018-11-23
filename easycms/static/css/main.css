@@ -127,12 +127,12 @@ ul.links li, ul.list li {
 	padding: 4px 0;
 }
 
-.main-panel {
+.main-card {
 	max-width: 800px;
 	margin: 50px auto 15px;
 }
 
-.panel-heading h1 {
+.card-headerg h1 {
 	margin: 10px 0;
 }
 
@@ -195,4 +195,28 @@ div.button-list > a.btn {
 tr.disabled td {
 	color: #777;
 	text-decoration: line-through;
+}
+
+.oi {
+	position: relative;
+	top: 2px;
+}
+
+.btn .oi {
+	margin-right: 2px;
+}
+
+.btn-xs .oi {
+	font-size: 10px;
+	top: 0;
+	margin: 0;
+	display: inline-block;
+	height: 9px;
+}
+
+.btn-group-xs > .btn, .btn-xs {
+  padding  : .4rem;
+  font-size  : .875rem;
+  line-height  : .5;
+  border-radius : .2rem;
 }

@@ -91,16 +91,16 @@
 {% block easycms_content %}
 	<div id="page-content">
 		<div class="button-list">
-			<a class="btn btn-default" href="{{ url_for('.view_posts') }}">
-				<span class="glyphicon glyphicon-arrow-left"></span> View All Posts
+			<a class="btn btn-secondary" href="{{ url_for('.view_posts') }}">
+				<span class="oi" data-glyph="arrow-left"></span> View All Posts
 			</a>
 			{% if post %}
-				<a class="btn btn-default" href="{{ url_for('.view_post', post_id=post.id) }}">
-					<span class="glyphicon glyphicon-arrow-left"></span> Back to Post
+				<a class="btn btn-secondary" href="{{ url_for('.view_post', post_id=post.id) }}">
+					<span class="oi" data-glyph="arrow-left"></span> Back to Post
 				</a>
 			{% endif %}
-			<a class="btn btn-default" href="{{ url_for('.edit_category') }}">
-				<span class="glyphicon glyphicon-plus"></span> Create Category
+			<a class="btn btn-secondary" href="{{ url_for('.edit_category') }}">
+				<span class="oi" data-glyph="plus"></span> Create Category
 			</a>
 		</div>
 		{% if post %}
@@ -112,36 +112,38 @@
 		<div id="main-form">
 			{{ form.render_before_sections() }}
 
-			<div class="form-group">
-				<div class="col-sm-10 col-sm-offset-1">
-					{% if post and (post.published or not access_control.can_publish_post()) %}
-						<input type="submit" class="btn btn-primary" name="post" value="Save">
-					{% else %}
-						<input type="submit" class="btn btn-default" name="post" value="Save">
-						<input type="submit" class="btn btn-primary" name="post-publish" value="Save and Publish">
-					{% endif %}
-					{% if post %}
-						<a href="{{ url_for('.view_post_history', post_id=post.id) }}" class="btn btn-default">View Revision History</a>
-					{% endif %}
-					<button class="btn btn-default" onclick="backgroundSave(); return false">Background Save</button>
-					{% if post and post.published and access_control.can_publish_post() %}
-						<a href="{{ url_for('.edit_post_publish_date', post_id=post.id) }}" class="btn btn-default">Edit Publish Date</a>
-					{% endif %}
-					{% if post %}
-						<a href="{{ url_for('.edit_post_snippet', post_id=post.id) }}" class="btn btn-default">Edit Snippet</a>
-						<a href="{{ url_for('.edit_post_seo', post_id=post.id) }}" class="btn btn-default">Edit SEO Settings</a>
-						{% if access_control.can_delete_post() %}
-							<a href="{{ url_for('.delete_post', post_id=post.id) }}" class="btn btn-warning">Delete Post</a>
-						{% endif %}
-
-						<h3>Tags</h3>
-						{% if post.tags %}
-							<ul class="bullets">{% for tag in post.tags %}<li>{{ tag.name }}</li>{% endfor %}</ul>
+			<div class="row">
+				<div class="col-sm-10 offset-sm-1">
+					<div class="button-list">
+						{% if post and (post.published or not access_control.can_publish_post()) %}
+							<input type="submit" class="btn btn-primary" name="post" value="Save">
 						{% else %}
-							<p>This post has no tags</p>
+							<input type="submit" class="btn btn-secondary" name="post" value="Save">
+							<input type="submit" class="btn btn-primary" name="post-publish" value="Save and Publish">
 						{% endif %}
-						<a href="{{ url_for('.edit_post_tags', post_id=post.id) }}" class="btn btn-default">Edit Tags</a>
-					{% endif %}
+						{% if post %}
+							<a href="{{ url_for('.view_post_history', post_id=post.id) }}" class="btn btn-secondary">View Revision History</a>
+						{% endif %}
+						<button class="btn btn-secondary" onclick="backgroundSave(); return false">Background Save</button>
+						{% if post and post.published and access_control.can_publish_post() %}
+							<a href="{{ url_for('.edit_post_publish_date', post_id=post.id) }}" class="btn btn-secondary">Edit Publish Date</a>
+						{% endif %}
+						{% if post %}
+							<a href="{{ url_for('.edit_post_snippet', post_id=post.id) }}" class="btn btn-secondary">Edit Snippet</a>
+							<a href="{{ url_for('.edit_post_seo', post_id=post.id) }}" class="btn btn-secondary">Edit SEO Settings</a>
+							{% if access_control.can_delete_post() %}
+								<a href="{{ url_for('.delete_post', post_id=post.id) }}" class="btn btn-warning">Delete Post</a>
+							{% endif %}
+
+							<h3 class="space-before">Tags</h3>
+							{% if post.tags %}
+								<ul class="bullets">{% for tag in post.tags %}<li>{{ tag.name }}</li>{% endfor %}</ul>
+							{% else %}
+								<p>This post has no tags</p>
+							{% endif %}
+							<a href="{{ url_for('.edit_post_tags', post_id=post.id) }}" class="btn btn-secondary">Edit Tags</a>
+						{% endif %}
+					</div>
 				</div>
 			</div>
 

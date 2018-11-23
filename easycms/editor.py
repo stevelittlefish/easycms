@@ -13,6 +13,7 @@ from flask import Blueprint, render_template, request, abort, redirect, jsonify,
 import easyforms
 from easyforms import CkeditorConfig  # noqa
 from easyforms import validate
+from easyforms.bs4 import Form
 from littlefish import timetool, imageutil
 from littlefish.pager import Pager
 from titlecase import titlecase
@@ -126,7 +127,7 @@ def edit_page(page_id=None):
     if not page:
         abort(404)
 
-    form = easyforms.Form([
+    form = Form([
         easyforms.CkeditorField('page', value=page.content, height=550, width=10,
                                 on_change='handleCkeditorChange', config=settings.ckeditor_config)
     ], label_width=1, submit_text=None, form_name='create-page')
@@ -285,7 +286,7 @@ def edit_post(post_type=None, post_id=None):
                                 on_change='handleCkeditorChange', config=settings.ckeditor_config)
     ]
 
-    form = easyforms.Form(fields, label_width=1, submit_text=None, form_name='create-post')
+    form = Form(fields, label_width=1, submit_text=None, form_name='create-post')
     
     user = accesscontrol.get_access_control().get_logged_in_cms_user()
 
@@ -393,7 +394,7 @@ def edit_post_tags(post_id):
     if not post:
         abort(404)
 
-    form = easyforms.Form([
+    form = Form([
         easyforms.TextAreaField('tags', 2, help_text='Enter as many tags as you want, comma separated',
                                 required=True),
         easyforms.SubmitButton('submit', 'Add Tags')
@@ -472,7 +473,7 @@ def edit_post_seo(post_id):
 
     success = None
 
-    form = easyforms.Form([
+    form = Form([
         easyforms.TextField('html-title', value=post.html_title, help_text='Leave blank for: "%s"' % post.title,
                             validators=[validate.max_length(55)]),
         easyforms.TextAreaField('html-description', value=post.html_description,
@@ -501,10 +502,10 @@ def edit_post_publish_date(post_id):
 
     published = timetool.to_local_time(post.published)
 
-    form = easyforms.Form([
+    form = Form([
         easyforms.DatePickerField('date', value=published.date()),
         easyforms.TimeInputField('time', value=published.time())
-    ])
+    ], label_width=1)
 
     if form.ready:
         post.published = timetool.to_utc_time(datetime.datetime.combine(form['date'], form['time']))
@@ -564,7 +565,7 @@ def edit_post_snippet(post_id):
     if not post:
         abort(404)
 
-    form = easyforms.Form(submit_text=None, read_form_data=False)
+    form = Form(submit_text=None, read_form_data=False)
     form.label_width = 2
 
     form.add_section('main', [
@@ -613,7 +614,7 @@ def add_snippet_image(post_id):
     if not post:
         abort(404)
 
-    form = easyforms.Form([
+    form = Form([
         easyforms.ImageUploadField('snippet-image', required=True),
     ], label_width=2)
 
@@ -675,7 +676,7 @@ def edit_category(post_type=None, code=None):
         if not category:
             abort(404)
 
-    form = easyforms.Form([
+    form = Form([
         get_post_types_input('post-type', readonly=category is not None,
                              value=category.post_type if category else None),
         easyforms.TextField('name', required=True, value=category.name if category else None),

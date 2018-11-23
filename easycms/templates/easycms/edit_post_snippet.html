@@ -23,20 +23,13 @@
 
 {% block easycms_content %}
 	<div class="button-list">
-		<a class="btn btn-default" href="{{ url_for('.edit_post', post_id=post.id) }}">
-			<span class="glyphicon glyphicon-arrow-left"></span> Back to Edit Blog Post
+		<a class="btn btn-secondary" href="{{ url_for('.edit_post', post_id=post.id) }}">
+			<span class="oi" data-glyph="arrow-left"></span> Back to Edit Blog Post
 		</a>
-		<a class="btn btn-default" href="{{ url_for('.view_post', post_id=post.id) }}">
-			<span class="glyphicon glyphicon-arrow-left"></span> View Post
+		<a class="btn btn-secondary" href="{{ url_for('.view_post', post_id=post.id) }}">
+			<span class="oi" data-glyph="arrow-left"></span> View Post
 		</a>
 	</div>
-
-	{#
-	<h2>Current Snippet</h2>
-	<div class="blog-snippet-preview">
-		{{ macros.blog_snippet(post) }}
-	</div>
-	#}
 
 	<h2>
 		Editing Snippet for post "<strong>{{ post.title }}</strong>".
@@ -46,8 +39,8 @@
 		{{ form.render_before_sections() }}
 		{{ form.render_section('main') }}
 
-		<div class="form-group   ">
-			<label class="col-sm-2 control-label">
+		<div class="form-group row">
+			<label class="col-sm-2 col-form-label">
 				Image
 			</label>
 
@@ -83,10 +76,10 @@
 			</div>
 		</div>
 		<div class="row">
-			<div class="col-sm-offset-2 col-sm-10">
+			<div class="offset-sm-2 col-sm-10">
 				<p class="info">Add a new snippet image that is not in the current post.</p>
-				<a href="{{ url_for('.add_snippet_image', post_id=post.id) }}" class="btn btn-default add-snippet">
-					<span class="glyphicon glyphicon-plus"></span> Add Custom Snippet Image
+				<a href="{{ url_for('.add_snippet_image', post_id=post.id) }}" class="btn btn-secondary add-snippet">
+					<span class="oi" data-glyph="plus"></span> Add Custom Snippet Image
 				</a>
 			</div>
 		</div>

@@ -4,7 +4,7 @@ Main blueprint for test app
 
 import logging
 
-from flask import Blueprint, render_template, redirect, url_for
+from flask import Blueprint, render_template, redirect, url_for, current_app
 import easyforms
 from easyforms.bs4 import Form
 
@@ -48,6 +48,11 @@ def authenticate(email, plain_password):
 
     log.info('Login failed for \'%s\'' % email)
     return False
+
+
+@main.route('/favicon.ico')
+def favicon():
+    return current_app.send_static_file('favicon.ico')
 
 
 @main.route('/')

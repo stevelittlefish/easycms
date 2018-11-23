@@ -61,8 +61,8 @@ class CmsAccessControl(easycms.accesscontrol.AccessControlConfig):
 ckeditor_config = easyforms.CkeditorConfig(
     allow_all_extra_content=False,
     disallowed_content='img[height]',
-    custom_styles_js_url='/static/js/ckeditor_styles.js',
-    custom_contents_css_url='/static/css/ckeditor_contents.css',
+    # custom_styles_js_url='/static/js/ckeditor_styles.js',
+    # custom_contents_css_url='/static/css/ckeditor_contents.css',
     force_paste_as_plain_text=True
 )
 
@@ -72,14 +72,14 @@ settings = easycms.settings.EasyCmsSettings(
     website_name='Test Site',
     logout_endpoint='main.logout',
     ckeditor_config=ckeditor_config,
-    custom_stylesheet_url='/static/css/editor.css',
+    # custom_stylesheet_url='/static/css/editor.css',
     # editor_base_template='admin/cmsbase.html',
     snippets_enabled=True,
     snippet_image_width=300,
     snippet_image_height=200,
     snippet_image_subfolder='cms-snippet-images',
     snippet_description_max_length=170,
-    snippet_missing_image_url='/static/img/no-image.png',
+    # snippet_missing_image_url='/static/img/no-image.png',
 )
 
 page_defs = [

@@ -24,11 +24,11 @@
 {% block easycms_content %}
 	<div id="page-content">
 		<div class="button-list">
-			<a class="btn btn-default" href="{{ url_for('.index') }}">
-				<span class="glyphicon glyphicon-arrow-left"></span> Back to Blog Home
+			<a class="btn btn-secondary" href="{{ url_for('.index') }}">
+				<span class="oi" data-glyph="arrow-left"></span> Back to Blog Home
 			</a>
-			<a class="btn btn-default" href="{{ url_for('.edit_post', post_id=post.id) }}">
-				<span class="glyphicon glyphicon-arrow-left"></span> Back to Edit Blog Post
+			<a class="btn btn-secondary" href="{{ url_for('.edit_post', post_id=post.id) }}">
+				<span class="oi" data-glyph="arrow-left"></span> Back to Edit Blog Post
 			</a>
 		</div>
 		<div class="row tools" {% if not post %}style="display: none;"{% endif %} id="tools">

@@ -6,12 +6,12 @@
 
 {% block easycms_content %}
 	<div class="button-list">
-		<a class="btn btn-default" href="{{ url_for('.view_posts') }}">
-			<span class="glyphicon glyphicon-arrow-left"></span> Back to Posts
+		<a class="btn btn-secondary" href="{{ url_for('.view_posts') }}">
+			<span class="oi" data-glyph="arrow-left"></span> Back to Posts
 		</a>
 		{% if access_control.can_edit_post() %}
 			<a class="btn btn-primary" href="{{ url_for('.edit_post', post_id=post.id) }}">
-				<span class="glyphicon glyphicon-pencil"></span> Edit {{ post.post_type | title }}
+				<span class="oi" data-glyph="pencil"></span> Edit {{ post.post_type | title }}
 			</a>
 		{% endif %}
 	</div>

@@ -83,12 +83,12 @@
 {% block easycms_content %}
 	<div id="page-content">
 		<div class="button-list">
-			<a class="btn btn-default" href="{{ url_for('.view_pages') }}">
-				<span class="glyphicon glyphicon-arrow-left"></span> View All Pages
+			<a class="btn btn-secondary" href="{{ url_for('.view_pages') }}">
+				<span class="oi" data-glyph="arrow-left"></span> View All Pages
 			</a>
 			{% if page %}
-				<a class="btn btn-default" href="{{ url_for('.view_page', page_id=page.id) }}">
-					<span class="glyphicon glyphicon-arrow-left"></span> Back to Page
+				<a class="btn btn-secondary" href="{{ url_for('.view_page', page_id=page.id) }}">
+					<span class="oi" data-glyph="arrow-left"></span> Back to Page
 				</a>
 			{% endif %}
 		</div>
@@ -101,13 +101,13 @@
 		<div id="main-form">
 			{{ form.render_before_sections() }}
 
-			<div class="form-group">
-				<div class="col-sm-10 col-sm-offset-1">
+			<div class="form-group row">
+				<div class="col-sm-10 offset-sm-1">
 					<input type="submit" class="btn btn-primary" name="page" value="Save">
 					{% if page %}
-						<a href="{{ url_for('.view_page_history', page_id=page.id) }}" class="btn btn-default">View Revision History</a>
+						<a href="{{ url_for('.view_page_history', page_id=page.id) }}" class="btn btn-secondary">View Revision History</a>
 					{% endif %}
-					<button class="btn btn-default" onclick="backgroundSave(); return false">Background Save</button>
+					<button class="btn btn-secondary" onclick="backgroundSave(); return false">Background Save</button>
 				</div>
 			</div>
 

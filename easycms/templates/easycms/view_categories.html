@@ -4,12 +4,12 @@
 
 {% block easycms_content %}
 	<div class="button-list">
-		<a class="btn btn-default" href="{{ url_for('.index') }}">
-			<span class="glyphicon glyphicon-arrow-left"></span> Content Editor Home
+		<a class="btn btn-secondary" href="{{ url_for('.index') }}">
+			<span class="oi" data-glyph="arrow-left"></span> Content Editor Home
 		</a>
 		{% if access_control.can_edit_category() %}
 			<a class="btn btn-primary" href="{{ url_for('.edit_category') }}">
-				<span class="glyphicon glyphicon-plus"></span> Create Category
+				<span class="oi" data-glyph="plus"></span> Create Category
 			</a>
 		{% endif %}
 	</div>
@@ -42,12 +42,14 @@
 						{{ category.code }}
 					</td>
 					<td>
-						<a class="btn btn-xs btn-default" href="{{ url_for('.edit_category', post_type=category.post_type, code=category.code) }}">
+						<a class="btn btn-xs btn-secondary" href="{{ url_for('.edit_category', post_type=category.post_type, code=category.code) }}">
+							<span class="oi" data-glyph="pencil"></span>
 							edit
 						</a>
 					</td>
 					<td>
 						<a class="btn btn-xs btn-danger" href="{{ url_for('.delete_category', category_id=category.id) }}">
+							<span class="oi" data-glyph="circle-x"></span>
 							delete
 						</a>
 					</td>
