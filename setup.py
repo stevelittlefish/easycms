@@ -25,6 +25,16 @@ setup(
         'Topic :: Software Development :: Libraries'
     ],
     install_requires=[
+        'flaskfilemanager>=0.0.5',
+        'SQLAlchemy>=1.2.10',
+        'Flask>=1.0.2',
+        'Pillow>=5.2.0',
+        'requests>=2.19.1',
+        'easyforms>=0.1.4',
+        'littlefish>=0.0.25',
+        'titlecase>=0.12.0',
+        'beautifulsoup4>=4.6.0',
+        'unidecode>=1.0.23'
     ],
 )
 
