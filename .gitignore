@@ -8,3 +8,4 @@ easyforms.egg-info
 env
 out.log
 testapp/config.py
+easycms.egg-info
