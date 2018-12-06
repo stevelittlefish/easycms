@@ -322,6 +322,8 @@ def init(table_prefix, metadata, bind):
             soup = BeautifulSoup(unidecode(self.content), 'html.parser')
             imgs = soup.find_all('img')
             out = []
+            if self.main_image_url:
+                out.append(self.main_image_url)
             for img in imgs:
                 out.append(img['src'])
             return out
