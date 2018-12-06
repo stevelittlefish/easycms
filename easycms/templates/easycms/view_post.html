@@ -17,6 +17,15 @@
 	</div>
 
 	<div class="preview">
+		{% if settings.post_main_image_enabled %}
+			{% if post.main_image_url %}
+				<img src="{{ post.main_image_url }}">
+			{% else %}
+				<div class="alert alert-warning">
+					This post has no main image
+				</div>
+			{% endif %}
+		{% endif %}
 		<h1>{{ post.title }}</h1>
 		{% if not post.published %}
 			<h3 class="info text-center">Not Published</h3>

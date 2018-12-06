@@ -80,6 +80,10 @@ settings = easycms.settings.EasyCmsSettings(
     snippet_image_subfolder='cms-snippet-images',
     snippet_description_max_length=170,
     # snippet_missing_image_url='/static/img/no-image.png',
+    post_main_image_enabled=True,
+    post_main_image_width=800,
+    post_main_image_height=600,
+    post_main_image_required=True
 )
 
 page_defs = [

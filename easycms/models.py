@@ -182,6 +182,7 @@ def init(table_prefix, metadata, bind):
         snippet_title = Column(String, nullable=True)
         snippet_description = Column(String, nullable=True)
         snippet_image = Column(String, nullable=True)
+        main_image_url = Column(String, nullable=True)
 
         category = relationship('CmsCategory', uselist=False, backref=backref('posts'))
         tags = relationship('CmsTag', secondary=cms_post_cms_tag, backref=backref('posts'))
@@ -193,7 +194,7 @@ def init(table_prefix, metadata, bind):
         )
         
         def __init__(self, post_type, category, title, content, author, tagline,
-                     publish_now=False, code=None):
+                     publish_now=False, code=None, main_image_url=None):
             
             self.post_type = post_type
             self.created = datetime.datetime.utcnow()
@@ -203,6 +204,7 @@ def init(table_prefix, metadata, bind):
             self.tagline = tagline
             self.content = content
             self.author = author
+            self.main_image_url = main_image_url
             if code:
                 self.code = code
             else:

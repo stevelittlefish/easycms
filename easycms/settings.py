@@ -44,7 +44,11 @@ class EasyCmsSettings(object):
             filemanager_url_prefix='/fm',
             ckeditor_config=None,
             custom_stylesheet_url=None,
-            editor_base_template='easycms/root.html'
+            editor_base_template='easycms/root.html',
+            post_main_image_enabled=False,
+            post_main_image_width=None,
+            post_main_image_height=None,
+            post_main_image_required=False
     ):
         """
         :snippet_image_subfolder: Subfolder of file manager to store snippet images in
@@ -68,6 +72,10 @@ class EasyCmsSettings(object):
         self._ckeditor_config = ckeditor_config
         self.custom_stylesheet_url = custom_stylesheet_url
         self.editor_base_template = editor_base_template
+        self.post_main_image_enabled = post_main_image_enabled
+        self.post_main_image_width = post_main_image_width
+        self.post_main_image_height = post_main_image_height
+        self.post_main_image_required = post_main_image_required
         
         if self._ckeditor_config is None:
             self._ckeditor_config = CkeditorConfig()

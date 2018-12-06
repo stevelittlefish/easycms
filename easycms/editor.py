@@ -130,7 +130,7 @@ def edit_page(page_id=None):
     form = Form([
         easyforms.CkeditorField('page', value=page.content, height=550, width=10,
                                 on_change='handleCkeditorChange', config=settings.ckeditor_config)
-    ], label_width=1, submit_text=None, form_name='create-page')
+    ], label_width=1, submit_text=None, form_name='create-page', form_type=easyforms.HORIZONTAL)
     
     user = accesscontrol.get_access_control().get_logged_in_cms_user()
 
@@ -281,12 +281,21 @@ def edit_post(post_type=None, post_id=None):
         easyforms.ObjectListSelectField('category', categories, required=True, value=post.category if post else categories[0], width=3),
         easyforms.TextField('tagline', required=True, value=post.tagline if post else None,
                             help_text='A very short description of the post. You can copy + paste the first sentence here! Max {} characters'.format(tagline_max_length),
-                            width=10, validators=[validate.max_length(tagline_max_length)]),
-        easyforms.CkeditorField('post', value=post.content if post else None, height=550, width=10,
-                                on_change='handleCkeditorChange', config=settings.ckeditor_config)
+                            width=10, validators=[validate.max_length(tagline_max_length)])
     ]
 
-    form = Form(fields, label_width=1, submit_text=None, form_name='create-post')
+    if settings.post_main_image_enabled:
+        fields.append(
+            easyforms.FilemanagerField('main-image', label='Image', width=10,
+                                       value=post.main_image_url if post else None,
+                                       required=settings.post_main_image_required,
+                                       help_text='The main image to display for this post')
+        )
+
+    fields.append(easyforms.CkeditorField('post', value=post.content if post else None, height=550, width=10,
+                                          on_change='handleCkeditorChange', config=settings.ckeditor_config))
+
+    form = Form(fields, label_width=1, submit_text=None, form_name='create-post', form_type=easyforms.HORIZONTAL)
     
     user = accesscontrol.get_access_control().get_logged_in_cms_user()
 
@@ -318,16 +327,21 @@ def edit_post(post_type=None, post_id=None):
         content = form['post']
         if content is None:
             content = ''
+        
+        main_image_url = None
+        if settings.post_main_image_enabled:
+            main_image_url = form['main-image']
 
         if post:
             post.category = form['category']
             post.title = titlecase(form['title'])
             post.content = content
             post.tagline = form['tagline']
+            post.main_image_url = main_image_url
         else:
             post = models.CmsPost(
                 post_type, form['category'], titlecase(form['title']), content, user,
-                form['tagline'], publish_post
+                form['tagline'], publish_post, main_image_url=main_image_url
             )
             db.session.add(post)
 
@@ -398,7 +412,7 @@ def edit_post_tags(post_id):
         easyforms.TextAreaField('tags', 2, help_text='Enter as many tags as you want, comma separated',
                                 required=True),
         easyforms.SubmitButton('submit', 'Add Tags')
-    ], submit_text=None)
+    ], submit_text=None, form_type=easyforms.HORIZONTAL)
 
     if form.ready:
         tags = form['tags']
@@ -481,7 +495,7 @@ def edit_post_seo(post_id):
                                 rows=3, validators=[validate.max_length(159)]),
         easyforms.TextField('code', label='Code (URL name)', required=True, value=post.code,
                             help_text='Can only contain a-z, 0-9 and -')
-    ])
+    ], form_type=easyforms.HORIZONTAL)
 
     if form.ready:
         post.html_title = form['html-title']
@@ -505,7 +519,7 @@ def edit_post_publish_date(post_id):
     form = Form([
         easyforms.DatePickerField('date', value=published.date()),
         easyforms.TimeInputField('time', value=published.time())
-    ], label_width=1)
+    ], label_width=1, form_type=easyforms.HORIZONTAL)
 
     if form.ready:
         post.published = timetool.to_utc_time(datetime.datetime.combine(form['date'], form['time']))
@@ -565,13 +579,23 @@ def edit_post_snippet(post_id):
     if not post:
         abort(404)
 
-    form = Form(submit_text=None, read_form_data=False)
+    form = Form(submit_text=None, read_form_data=False, form_type=easyforms.HORIZONTAL)
     form.label_width = 2
+
+    snippet_max_length = get_settings().snippet_description_max_length
+    snippet_validators = [validate.max_length(snippet_max_length)]
+    default_description = post.get_snippet_description()
+
+    if snippet_max_length <= 120:
+        description_field = easyforms.TextField('description', value=default_description, width=10,
+                                                label_width=2, validators=snippet_validators)
+    else:
+        description_field = easyforms.TextAreaField('description', value=default_description, width=10,
+                                                    rows=4, label_width=2, validators=snippet_validators)
 
     form.add_section('main', [
         easyforms.TextField('title', value=post.get_snippet_title(), width=10, label_width=2, required=True),
-        easyforms.TextField('description', value=post.get_snippet_description(), width=10, label_width=2,
-                            validators=[validate.max_length(get_settings().snippet_description_max_length)])
+        description_field
     ])
 
     form.add_submit('Submit')
@@ -616,7 +640,7 @@ def add_snippet_image(post_id):
 
     form = Form([
         easyforms.ImageUploadField('snippet-image', required=True),
-    ], label_width=2)
+    ], label_width=2, form_type=easyforms.HORIZONTAL)
 
     if form.ready:
         image = form['snippet-image']
@@ -683,7 +707,7 @@ def edit_category(post_type=None, code=None):
         easyforms.TextField('code', label='URL Name', required=True,
                             value=category.code if category else None,
                             validators=[validate.url_safe])
-    ])
+    ], form_type=easyforms.HORIZONTAL)
 
     if form.ready:
         if category:
