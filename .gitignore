@@ -9,3 +9,4 @@ env
 out.log
 testapp/config.py
 easycms.egg-info
+tmp-webapp-uploads
