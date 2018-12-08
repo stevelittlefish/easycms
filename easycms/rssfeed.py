@@ -82,6 +82,10 @@ def generate_rss_xml(website_name=None, website_description=None):
         #         comments += 1
         
         rss_description = post.description + '&hellip; <a href="{}">Read More</a>'.format(get_url(post))
+        rss_content = post.content
+
+        if post.main_image_url:
+            rss_content = '<img src="{}"><br><br>{}'.format(post.main_image_url, rss_content)
 
         channel.append(
             E.item(
@@ -93,7 +97,7 @@ def generate_rss_xml(website_name=None, website_description=None):
                 E.category(CDATA(post.category.name)),
                 E.guid({'isPermaLink': 'false'}, get_url(post)),
                 E.description(CDATA(rss_description)),
-                CONTENT.encoded(CDATA(post.content)),
+                CONTENT.encoded(CDATA(rss_content)),
                 # WFW.commentRss(),
                 SLASH.comments(str(0))
             )
