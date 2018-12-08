@@ -108,7 +108,6 @@ ul.links li, ul.list li {
 }
 
 .main-panel {
-	max-width: 800px;
 	margin: 50px auto 15px;
 }
 
@@ -134,15 +133,148 @@ ul.links li, ul.list li {
 	padding: 15px;
 }
 
-/* Bootstrap 3 Stuff *********************************************************/
-
-.navbar-inverse .navbar-nav > li > a {
-    color: rgba(255,255,255,.8);
+.blog-post img {
+	max-width: 100%;
 }
 
-.navbar-inverse .navbar-nav > li.bs3-navbar-text {
-	color: rgba(255, 255, 255, 0.5);
-	margin: 15px 5px;
+.blog-post .tools {
+  border-top: 1px solid #e9e9e9;
+  border-bottom: 1px solid #e9e9e9;
+  margin-bottom: 15px;
+}
+.blog-post .tools ul {
+  display: flex;
+  padding: 0;
+  margin: 15px 0;
+}
+.blog-post .tools ul li {
+  list-style: none;
+  margin-right: 15px;
+}
+
+a.blog-snippet {
+  text-decoration: none;
+  border-bottom: 5px solid transparent;
+}
+a.blog-snippet:hover {
+  border-bottom: 5px solid #2d2d2d;
+}
+
+.blog-snippet {
+  display: block;
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+}
+.blog-snippet img {
+  display: block;
+}
+.blog-snippet div.snippet-image {
+  height: 160px;
+  width: 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+}
+.blog-snippet h3, .blog-snippet .selected-treatments h2, .selected-treatments .blog-snippet h2 {
+  font-size: 18px;
+  line-height: 24px;
+  text-transform: none;
+  font-weight: 700;
+}
+@media (min-width: 576px) {
+  .blog-snippet h3, .blog-snippet .selected-treatments h2, .selected-treatments .blog-snippet h2 {
+    min-height: 50px;
+  }
+}
+.blog-snippet h3 a, .blog-snippet .selected-treatments h2 a, .selected-treatments .blog-snippet h2 a {
+  text-decoration: none;
+}
+.blog-snippet .date {
+  color: #989898;
+  font-size: 13px;
+  font-weight: normal;
+  text-transform: none;
+  font-family: "Open Sans", sans-serif;
+  margin: 0;
+}
+.blog-snippet .description {
+  font-size: 14px;
+  margin: 5px 0;
+  color: #696969;
+}
+.blog-snippet .read-more {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-decoration: none;
+}
+
+.blog-snippet-desktop {
+  display: none;
+  width: 300px;
+}
+@media screen and (min-width: 500px) {
+  .blog-snippet-desktop {
+    display: block;
+  }
+}
+.blog-snippet-desktop h3, .blog-snippet-desktop .selected-treatments h2, .selected-treatments .blog-snippet-desktop h2 {
+  margin: 20px 0 4px;
+}
+
+.blog-snippet-mobile {
+  border-bottom: 1px solid #e9e9e9;
+}
+@media screen and (min-width: 500px) {
+  .blog-snippet-mobile {
+    display: none;
+  }
+}
+.blog-snippet-mobile .date, .blog-snippet-mobile h3, .blog-snippet-mobile .selected-treatments h2, .selected-treatments .blog-snippet-mobile h2, .blog-snippet-mobile .description {
+  margin: 16px 0;
+}
+
+.blog-snippet-list h2 {
+  text-align: center;
+  font-size: 22px;
+  margin: 0 0 20px;
+  flex: 1 0 100%;
+}
+@media screen and (min-width: 500px) {
+  .blog-snippet-list h2 {
+    margin-bottom: 30px;
+    font-size: 28px;
+  }
+}
+@media screen and (min-width: 500px) {
+  .blog-snippet-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-left: -15px;
+    margin-right: -15px;
+  }
+  .blog-snippet-list .blog-snippet {
+    flex: 0 0 300px;
+    margin-left: 15px;
+    margin-right: 15px;
+  }
+}
+.blog-snippet-list .blog-snippet-3 {
+  display: none;
+}
+@media (min-width: 992px) {
+  .blog-snippet-list .blog-snippet-3.blog-snippet-desktop {
+    display: block;
+  }
+}
+.blog-snippet-list .blog-snippet-4 {
+  display: none;
+}
+@media (min-width: 1200px) {
+  .blog-snippet-list .blog-snippet-4.blog-snippet-desktop {
+    display: block;
+  }
 }
 
 /* Bootstrap 4 Stuff *********************************************************/

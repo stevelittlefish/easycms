@@ -4,11 +4,13 @@ Configuration for EasyCMS
 
 import logging
 
+from flask import url_for
+import easyforms
+
 import easycms
 import easycms.models
 import easycms.accesscontrol
 from easycms.settings import PageDef
-import easyforms
 import auth
 import permissions
 from permissions import Permissions
@@ -83,7 +85,8 @@ settings = easycms.settings.EasyCmsSettings(
     post_main_image_enabled=True,
     post_main_image_width=800,
     post_main_image_height=600,
-    post_main_image_required=True
+    post_main_image_required=True,
+    view_post_url_function=lambda post: url_for('main.view_blog_post', post_code=post.code, _external=True)
 )
 
 page_defs = [

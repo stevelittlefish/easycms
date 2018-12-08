@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ post.get_html_title() }}{% endblock title %}
+
+{% block description %}{{ post.get_html_description() }}{% endblock description %}
+
+{% block outer_banner %}
+{% endblock outer_banner %}
+
+
+{% block content %}
+	<div class="blog-post">
+		<a href="{{ url_for('main.view_blog_post', post_code=post.code) }}">
+			<div class="mobile-main-image" style="background-image: url({{ post.main_image_url }});"></div>
+			<img class="desktop-main-image" src="{{ post.main_image_url }}">
+		</a>
+
+		<h3 class="date">{{ post.published | format_date_long }}</h3>
+		
+		<h1>{{ post.title }}</h1>
+
+		{% if show_tools %}
+			<div class="tools">
+				<ul>
+					{% if can_edit %}
+						<li>
+							<a href="{{ post.editor_url }}">Edit Post</a>
+						</li>
+					{% endif %}
+					{% if can_edit_seo %}
+						<li>
+							<a href="{{ post.seo_editor_url }}">Edit SEO Settings</a>
+						</li>
+					{% endif %}
+				</ul>
+			</div>
+		{% endif %}
+
+		{{ post.content | safe }}
+	</div>
+	
+	<div class="blog-snippet-list">
+		<h2>Related Posts</h2>
+
+		{% for related_post in related_posts %}
+			<a href="{{ url_for('main.view_blog_post', post_code=related_post.code) }}" class="blog-snippet blog-snippet-desktop blog-snippet-{{ loop.index }}">
+				<img src="{{ related_post.get_snippet_image() }}">
+				<h3>{{ related_post.get_snippet_title() }}</h3>
+				<h4 class="date">{{ related_post.published | format_date_long }}</h4>
+				<p class="description">
+					{{ related_post.get_snippet_description() }}
+				</p>
+			</a>
+			<div class="blog-snippet blog-snippet-mobile blog-snippet-{{ loop.index }}">
+				<div class="snippet-image" style="background-image: url('{{ related_post.get_snippet_image() }}');"></div>
+				<h4 class="date">{{ related_post.published | format_date_long }}</h4>
+				<h3>
+					<a href="{{ url_for('main.view_blog_post', post_code=related_post.code) }}">
+						{{ related_post.get_snippet_title() }}
+					</a>
+				</h3>
+				<p class="description">
+					{{ related_post.get_snippet_description() }}
+				</p>
+				<a href="{{ url_for('main.view_blog_post', post_code=related_post.code) }}" class="read-more">
+					Read More
+				</a>
+			</div>
+		{% endfor %}
+	</div>
+{% endblock content %}

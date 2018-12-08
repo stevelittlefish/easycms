@@ -312,7 +312,7 @@ def init(table_prefix, metadata, bind):
                 return get_settings().snippet_missing_image_url
 
             try:
-                return url_for('.static', filename='img/no-image.png')
+                return url_for('easycms_editor.static', filename='img/no-image.png')
             except Exception as e:
                 error = str(e)
                 raise Exception('Could not display snippet image. Make sure you set '
@@ -327,6 +327,24 @@ def init(table_prefix, metadata, bind):
             for img in imgs:
                 out.append(img['src'])
             return out
+        
+        @property
+        def editor_url(self):
+            return url_for('easycms_editor.edit_post', post_id=self.id)
+
+        @property
+        def seo_editor_url(self):
+            return url_for('easycms_editor.edit_post_seo', post_id=self.id)
+
+        @property
+        def front_end_url(self):
+            settings = get_settings()
+            
+            if settings.view_post_url_function is None:
+                raise Exception('To generate front-end URLS you need to set the view_post_url_function variable '
+                                'in your EasyCmsSettings object')
+
+            return settings.view_post_url_function(self)
 
     class CmsPostRevision(Model):
         __tablename__ = prefix + 'post_revision'

@@ -28,6 +28,9 @@ class AccessControlConfig(object):
     def can_edit_post(self):
         return True
 
+    def can_edit_post_seo(self):
+        return True
+
     def can_delete_post(self):
         return False
 
@@ -93,6 +96,14 @@ def can_edit_post(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         return _access_control_handler('can_edit_post', f, args, kwargs)
+
+    return decorated
+
+
+def can_edit_post_seo(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        return _access_control_handler('can_edit_post_seo', f, args, kwargs)
 
     return decorated
 

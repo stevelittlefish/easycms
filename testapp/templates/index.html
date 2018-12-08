@@ -10,8 +10,34 @@
 			<h1>{{ self.title() }}</h1>
 		</div>
 		<div class="panel-body card-body">
-			<ul class="links">
-			</ul>
+			<div class="blog-post-list">
+				{% for post in pager.items %}
+					<div class="blog-post">
+						<a href="{{ url_for('main.view_blog_post', post_code=post.code) }}">
+							<div class="mobile-main-image" style="background-image: url({{ post.main_image_url }});"></div>
+							<img class="desktop-main-image" src="{{ post.main_image_url }}">
+						</a>
+
+						<h3 class="date">{{ post.published | format_date_long }}</h3>
+
+						<h2>
+							<a href="{{ url_for('main.view_blog_post', post_code=post.code) }}">
+								{{ post.title }}
+							</a>
+						</h2>
+
+						<p>{{ post.description }}</p>
+
+						<p>
+							<a class="read-more" href="{{ url_for('main.view_blog_post', post_code=post.code) }}">
+								Read More
+							</a>
+						</p>
+					</div>
+				{% endfor %}
+				
+				{{ macros.pager(pager) }}
+			</div>
 		</div>
 	</div>
 {% endblock %}

@@ -80,7 +80,7 @@ def add_editor_context():
 def internal_error(e):
     try:
         db.session.rollback()
-    except:
+    except:  # noqa
         pass
 
     title = str(e)
@@ -147,7 +147,7 @@ def edit_page(page_id=None):
 
         try:
             db.session.commit()
-        except:
+        except:  # noqa
             if ajax:
                 return jsonify({'status': 'error', 'error': 'Background save failed!'})
             raise
@@ -228,7 +228,7 @@ def view_post(post_id):
     post = db.session.query(models.CmsPost).filter(models.CmsPost.id == post_id).one_or_none()
     if not post:
         abort(404)
-
+    
     return render_template('easycms/view_post.html', post=post)
 
 
@@ -360,7 +360,7 @@ def edit_post(post_type=None, post_id=None):
 
         try:
             db.session.commit()
-        except:
+        except:  # noqa
             if ajax:
                 return jsonify({'status': 'error', 'error': 'Background save failed!'})
             raise
@@ -479,8 +479,10 @@ def edit_post_tags(post_id):
 
 
 @editor.route('/posts/<int:post_id>/seo', methods=['GET', 'POST'])
-@accesscontrol.can_edit_post
+@accesscontrol.can_edit_post_seo
 def edit_post_seo(post_id):
+    settings = get_settings()
+
     post = db.session.query(models.CmsPost).filter(models.CmsPost.id == post_id).one_or_none()
     if not post:
         abort(404)
@@ -494,7 +496,8 @@ def edit_post_seo(post_id):
                                 help_text='Leave blank for: "%s"' % post.description,
                                 rows=3, validators=[validate.max_length(159)]),
         easyforms.TextField('code', label='Code (URL name)', required=True, value=post.code,
-                            help_text='Can only contain a-z, 0-9 and -')
+                            readonly=not settings.post_code_is_edittable,
+                            help_text='This will change the post URL. Can only contain a-z, 0-9 and -')
     ], form_type=easyforms.HORIZONTAL)
 
     if form.ready:

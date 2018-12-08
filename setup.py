@@ -30,11 +30,12 @@ setup(
         'Flask>=1.0.2',
         'Pillow>=5.2.0',
         'requests>=2.19.1',
-        'easyforms>=0.1.5',
+        'easyforms>=0.1.6',
         'littlefish>=0.0.25',
         'titlecase>=0.12.0',
         'beautifulsoup4>=4.6.0',
-        'unidecode>=1.0.23'
+        'unidecode>=1.0.23',
+        'lxml>=4.2.5'
     ],
 )
 

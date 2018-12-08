@@ -48,10 +48,38 @@ class EasyCmsSettings(object):
             post_main_image_enabled=False,
             post_main_image_width=None,
             post_main_image_height=None,
-            post_main_image_required=False
+            post_main_image_required=False,
+            post_code_is_edittable=False,
+            view_post_url_function=None
     ):
         """
-        :snippet_image_subfolder: Subfolder of file manager to store snippet images in
+        :param home_link_text: Text for home link in editor
+        :param home_link_endpoint: Flask endpoint for home link to point to
+        :param website_name: Name of website - used in editor pages
+        :param logout_endpoint: Flask endpoint for logout link to point to
+        :param tagline_max_length: Maximum length for the "tagline"
+        :param snippets_enabled: Enable the snippets system
+        :param snippet_image_width: Width of snippet image in pixels
+        :param snippet_image_height: Height of snippet image in pixels
+        :param snippet_image_subfolder: Subfolder inside filemanager directory to store snippet images
+        :param snippet_description_max_length: Maximum length of snippet text
+        :param snippet_missing_image_url: URL of image to use when there is no snippet image
+        :param pil_saved_image_quality: Quality to save system generated images i.e. snippet images
+        :param pil_saved_image_subsampling: Subsampling to save system generated images i.e. snippet images
+        :param pil_saved_image_compression_level: Compression to save system generated images i.e. snippet images
+        :param init_filemanager: Whether or not to automatically initialise the filemanager
+        :param filemanager_url_prefix: URL prefix for filemanager
+        :param ckeditor_config: easyforms.CkeditorConfig to configure CK Editor fields in the CMS editor
+        :param custom_stylesheet_url: URL of custom stylesheet for rendering post content
+        :param editor_base_template: Path of base template if you wish to override the default base template
+        :param post_main_image_enabled: Do posts have a "main image" - an image that is not part of the regular content
+        :param post_main_image_width: Unused
+        :param post_main_image_height: Unused
+        :param post_main_image_required: Is a "main" image required? Otherwise it will be optional
+        :param post_code_is_edittable: Can the code of a post be editted?
+        :param view_post_url_function: Set to a function that takes a post as its only argument and returns a url
+                                       to view that post. The returned URL must be a full URL (i.e. use
+                                       _external=True if using flask.get_url)
         """
         self.home_link_text = home_link_text
         self.home_link_endpoint = home_link_endpoint
@@ -76,6 +104,8 @@ class EasyCmsSettings(object):
         self.post_main_image_width = post_main_image_width
         self.post_main_image_height = post_main_image_height
         self.post_main_image_required = post_main_image_required
+        self.post_code_is_edittable = post_code_is_edittable
+        self.view_post_url_function = view_post_url_function
         
         if self._ckeditor_config is None:
             self._ckeditor_config = CkeditorConfig()
@@ -84,6 +114,10 @@ class EasyCmsSettings(object):
     def snippet_image_file_path(self):
         filemanager_path = filemanager.get_root_path()
         return os.path.join(filemanager_path, self.snippet_image_subfolder)
+
+    @property
+    def front_end_urls_enabled(self):
+        return self.view_post_url_function is not None
 
     @property
     def ckeditor_config(self):
