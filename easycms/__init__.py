@@ -3,31 +3,74 @@ Flask / SQLAlchemy CMS library
 """
 
 import datetime
+import logging
+import re
 
 import sqlalchemy.sql
 from littlefish.pager import SimplePager
 import flaskfilemanager
 from littlefish import util
+import sqlalchemy.exc
 
 from . import models, accesscontrol
 from .editor import editor as blueprint  # noqa
 from .settings import init as init_settings
 from . import datautil
+from . import migration
+
+log = logging.getLogger(__name__)
 
 __author__ = 'Stephen Brown (Little Fish Solutions LTD)'
 
 bind = None
 post_types = None
 
+# The package will have a version number (in pypi) like 1.2.3 where 1 is the major
+# version and 2 is the minor version.  In the code, we don't care about the 3rd
+# level of version number.  If we make any database changes we must update the
+# minor version, and if they are major changes we will update the major version
+# too
+
+MAJOR_VERSION = 0
+MINOR_VERSION = 1
+VERSION = '{}.{}.X'.format(MAJOR_VERSION, MINOR_VERSION)
+
 
 def init(app, engine_or_connection, metadata=None, all_post_types=['post'], table_prefix='cms',
-         access_control_config=None, settings=None, page_defs=[]):
+         access_control_config=None, settings=None, page_defs=[], update_db=False):
 
     global bind, session, post_types
 
+    log.info('Initialising EasyCMS v{}'.format(VERSION))
+
+    log.info('Update DB mode enabled')
+
     bind = engine_or_connection
     
+    if bind.dialect.name != 'postgresql':
+        raise Exception('Only postgresql is supported by EasyCMS')
+    
     models.init(table_prefix, metadata, bind)
+
+    try:
+        current_version = migration.check_current_version(update_db=update_db)
+    except sqlalchemy.exc.ProgrammingError as e:
+        if re.search('relation.*does not exist', str(e)):
+            raise Exception('An important table is missing from the database. To '
+                            'update the database you need to pass update_db=True '
+                            'into easycms.init(...)')
+        else:
+            raise e
+
+    if current_version.is_current_version:
+        log.info('Database version matches software version')
+    elif not update_db:
+        raise Exception('EasyCMS version is {} but you database is currently '
+                        'on version {}. To update the database you need to '
+                        'pass updated_db=True into easycms.init(...). '
+                        .format(VERSION, current_version.version_string))
+    else:
+        migration.update_database(current_version)
 
     post_types = all_post_types
     accesscontrol.init(access_control_config)
@@ -53,6 +96,8 @@ def init(app, engine_or_connection, metadata=None, all_post_types=['post'], tabl
 
     # Ensure all pages are up to date
     datautil.update_all_pages()
+
+    log.info('EasyCMS v{} Initialisation Complete'.format(VERSION))
 
 
 def get_all_posts_query(post_type=None, allow_unpublished=False, session=None):

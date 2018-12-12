@@ -8,7 +8,7 @@ import re
 
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, BigInteger, String, DateTime, ForeignKey, Table, UniqueConstraint,\
-    Boolean
+    Boolean, Integer
 from sqlalchemy.orm import relationship, backref, sessionmaker
 from sqlalchemy.sql import func
 from titlecase import titlecase
@@ -17,6 +17,7 @@ from unidecode import unidecode
 from flask import url_for
 
 from .settings import get_settings
+import easycms
 
 __author__ = 'Stephen Brown (Little Fish Solutions LTD)'
 
@@ -42,7 +43,7 @@ db = Db()
 
 def init(table_prefix, metadata, bind):
     global Model, CmsUser, CmsCategory, CmsTag, CmsPost, CmsPostRevision, CmsComment,\
-        CmsPage, CmsPageRevision, Session, session, db
+        CmsPage, CmsPageRevision, CmsVersionHistory, Session, session, db
 
     Model = declarative_base(bind=bind, metadata=metadata)
     Session = sessionmaker(bind=bind)
@@ -392,6 +393,30 @@ def init(table_prefix, metadata, bind):
         author = relationship('CmsUser', foreign_keys=[author_id], uselist=False)
         editor = relationship('CmsUser', foreign_keys=[edited_by_id], uselist=False)
         reply_to = relationship('CmsComment', uselist=False, remote_side=[id], backref=backref('replies', order_by=timestamp))
+    
+    class CmsVersionHistory(Model):
+        """
+        Used to store the version in the database so that we can automatically update the tables
+        """
+        __tablename__ = prefix + 'version_history'
+
+        id = Column(BigInteger, primary_key=True, nullable=False)
+        timestamp = Column(DateTime, nullable=False)
+        major_version = Column(Integer, nullable=False)
+        minor_version = Column(Integer, nullable=False)
+
+        def __init__(self, major_version, minor_version):
+            self.timestamp = datetime.datetime.utcnow()
+            self.major_version = major_version
+            self.minor_version = minor_version
+        
+        @property
+        def version_string(self):
+            return '{}.{}.X'.format(self.major_version, self.minor_version)
+
+        @property
+        def is_current_version(self):
+            return self.major_version == easycms.MAJOR_VERSION and self.minor_version == easycms.MINOR_VERSION
 
 
 def create_all():
