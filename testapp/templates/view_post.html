@@ -18,6 +18,7 @@
 		<h3 class="date">{{ post.published | format_date_long }}</h3>
 		
 		<h1>{{ post.title }}</h1>
+		<h2 class="subtitle">by <em>{{ post.author.name }}</em></h2>
 
 		{% if show_tools %}
 			<div class="tools">

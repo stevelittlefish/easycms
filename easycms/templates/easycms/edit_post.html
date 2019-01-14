@@ -147,7 +147,9 @@
 							{% else %}
 								<p>This post has no tags</p>
 							{% endif %}
-							<a href="{{ url_for('.edit_post_tags', post_id=post.id) }}" class="btn btn-secondary">Edit Tags</a>
+							{% if access_control.can_tag_post() %}
+								<a href="{{ url_for('.edit_post_tags', post_id=post.id) }}" class="btn btn-secondary">Edit Tags</a>
+							{% endif %}
 						{% endif %}
 					</div>
 				</div>

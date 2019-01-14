@@ -128,3 +128,7 @@ def create_tables(app, drop_all=False):
 
     add_user('admin@a.com', 'Admin User', 'qwe123', role_admin)
 
+    log.info('Inserting Authors')
+    bilbo = easycms.models.CmsAuthor('Bilbo Baggins')
+    insert(bilbo)
+

@@ -340,7 +340,7 @@ def edit_post(post_type=None, post_id=None):
             post.main_image_url = main_image_url
         else:
             post = models.CmsPost(
-                post_type, form['category'], titlecase(form['title']), content, user,
+                post_type, form['category'], titlecase(form['title']), content, user.author,
                 form['tagline'], publish_post, main_image_url=main_image_url
             )
             db.session.add(post)
@@ -397,7 +397,7 @@ def edit_post(post_type=None, post_id=None):
 
 
 @editor.route('/posts/<int:post_id>/edit-tags', methods=['GET', 'POST'])
-@accesscontrol.can_edit_post
+@accesscontrol.can_tag_post
 def edit_post_tags(post_id):
     post = db.session.query(
         models.CmsPost
@@ -408,8 +408,15 @@ def edit_post_tags(post_id):
     if not post:
         abort(404)
 
+    can_manage_tags = accesscontrol.get_access_control().can_manage_tags()
+
+    extra_help_text = ''
+    if not can_manage_tags:
+        extra_help_text = '. Note: you only have permission to add existing tags to this post.'
+
     form = Form([
-        easyforms.TextAreaField('tags', 2, help_text='Enter as many tags as you want, comma separated',
+        easyforms.TextAreaField('tags', 2,
+                                help_text='Enter as many tags as you want, comma separated{}'.format(extra_help_text),
                                 required=True),
         easyforms.SubmitButton('submit', 'Add Tags')
     ], submit_text=None, form_type=easyforms.HORIZONTAL)
@@ -417,6 +424,7 @@ def edit_post_tags(post_id):
     if form.ready:
         tags = form['tags']
         tags = tags.split(',')
+        
         for tag_name in tags:
             tag_name = tag_name.strip()
             if tag_name:
@@ -433,14 +441,20 @@ def edit_post_tags(post_id):
 
                 if tag:
                     log.debug('Adding existing tag to post')
-                else:
+                elif can_manage_tags:
                     tag = models.CmsTag(post.post_type, tag_name)
                     log.debug('Creating new tag')
-
-                post.tags.append(tag)
+                else:
+                    log.debug('Not creating new tag - user doesn\'t have permission')
+                    flash('Not adding tag "{}" - you do not have permission to create new tags'.format(
+                        tag_name
+                    ), 'danger')
+                
+                if tag:
+                    flash('Tag {} added'.format(tag_name), 'success')
+                    post.tags.append(tag)
 
         db.session.commit()
-        flash('Tag {} added'.format(tag_name), 'success')
         form.clear()
 
     if 'delete-tag' in request.form:
@@ -459,7 +473,8 @@ def edit_post_tags(post_id):
             db.session.commit()
             # Check if there are any posts left with this tag
             db.session.expire(tag)
-            if not tag.posts:
+            if not tag.posts and can_manage_tags:
+                # TODO: this could leave orphaned tags!
                 db.session.delete(tag)
                 db.session.commit()
             
@@ -488,8 +503,15 @@ def edit_post_seo(post_id):
         abort(404)
 
     success = None
+    
+    all_authors = db.session.query(
+        models.CmsAuthor
+    ).order_by(
+        models.CmsAuthor.name
+    ).all()
 
     form = Form([
+        easyforms.ObjectListSelectField('author', all_authors, value=post.author),
         easyforms.TextField('html-title', value=post.html_title, help_text='Leave blank for: "%s"' % post.title,
                             validators=[validate.max_length(55)]),
         easyforms.TextAreaField('html-description', value=post.html_description,
@@ -501,6 +523,7 @@ def edit_post_seo(post_id):
     ], form_type=easyforms.HORIZONTAL)
 
     if form.ready:
+        post.author = form['author']
         post.html_title = form['html-title']
         post.html_description = form['html-description']
         post.code = form['code']

@@ -70,6 +70,14 @@ def init(table_prefix, metadata, bind):
             else:
                 self.code = cmsutil.make_code(name)
     
+        @property
+        def select_name(self):
+            return self.name
+
+        @property
+        def select_value(self):
+            return self.id
+    
     class CmsUser(Model):
         __tablename__ = prefix + 'user'
         
@@ -230,7 +238,7 @@ def init(table_prefix, metadata, bind):
             if code:
                 self.code = code
             else:
-                cmsutil.make_code(title)
+                self.code = cmsutil.make_code(title)
 
         @property
         def description(self):

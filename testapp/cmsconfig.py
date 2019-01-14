@@ -44,6 +44,17 @@ class CmsAccessControl(easycms.accesscontrol.AccessControlConfig):
     def can_edit_post(self):
         return permissions.has_permission(Permissions.admin)
 
+    def can_edit_post_seo(self):
+        return permissions.has_permission(Permissions.admin)
+
+    def can_tag_post(self):
+        """Can the user add (already existing tags) to a post?"""
+        return permissions.has_permission(Permissions.admin)
+
+    def can_manage_tags(self):
+        """Can the user create new tags?"""
+        return permissions.has_permission(Permissions.admin)
+
     def can_delete_post(self):
         return permissions.has_permission(Permissions.admin)
 

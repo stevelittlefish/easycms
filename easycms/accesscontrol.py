@@ -31,6 +31,14 @@ class AccessControlConfig(object):
     def can_edit_post_seo(self):
         return True
 
+    def can_tag_post(self):
+        """Can the user add (already existing tags) to a post?"""
+        return self.can_edit_post()
+
+    def can_manage_tags(self):
+        """Can the user create new tags?"""
+        return self.can_tag_post()
+
     def can_delete_post(self):
         return False
 
@@ -96,6 +104,22 @@ def can_edit_post(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         return _access_control_handler('can_edit_post', f, args, kwargs)
+
+    return decorated
+
+
+def can_tag_post(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        return _access_control_handler('can_tag_post', f, args, kwargs)
+
+    return decorated
+
+
+def can_manage_tags(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        return _access_control_handler('can_manage_tags', f, args, kwargs)
 
     return decorated
 
