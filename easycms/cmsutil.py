@@ -6,6 +6,7 @@ import logging
 import urllib
 import io
 import os
+import re
 
 from flask import request, url_for
 import requests
@@ -18,6 +19,19 @@ from .settings import get_settings
 __author__ = 'Stephen Brown (Little Fish Solutions LTD)'
 
 log = logging.getLogger(__name__)
+
+
+def make_code(s, strip_hyphens=True):
+    """
+    Takes a str and turns it into a url-safe code by making lower case and
+    replacing all characters that are non alpha-numeric with a hyphen
+    """
+    code = re.sub(r'[^a-z0-9]+', '-', s.lower())
+    
+    if strip_hyphens:
+        code = code.strip('-')
+
+    return code
 
 
 def process_and_save_snippet_image(image_url, always_local=False):

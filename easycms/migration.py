@@ -19,6 +19,17 @@ class ColumnAlreadyExists(Exception):
     pass
 
 
+class ColumnDoesNotExist(Exception):
+    pass
+
+
+class Constraint(object):
+    def __init__(self, table_name, constraint_name, definition):
+        self.table_name = table_name
+        self.constraint_name = constraint_name
+        self.definition = definition
+
+
 def check_current_version(fix_missing=True, update_db=False):
     """
     Check the current version in the database.  If fix_missing is True, then 0.0 will be added if there
@@ -66,7 +77,6 @@ def check_current_version(fix_missing=True, update_db=False):
 
 def add_column(sql):
     try:
-        # Add main_image_url column
         return db.session.execute(sql)
 
     except sqlalchemy.exc.ProgrammingError as e:
@@ -76,6 +86,63 @@ def add_column(sql):
             raise ColumnAlreadyExists(e)
         else:
             raise e
+
+
+def alter_column(sql):
+    try:
+        return db.session.execute(sql)
+
+    except sqlalchemy.exc.ProgrammingError as e:
+        db.session.rollback()
+        
+        # TODO: error handling
+        raise e
+
+
+def rename_column(sql):
+    try:
+        return db.session.execute(sql)
+
+    except sqlalchemy.exc.ProgrammingError as e:
+        db.session.rollback()
+        
+        # TODO: error handling
+        raise e
+
+
+def drop_column(sql):
+    try:
+        return db.session.execute(sql)
+
+    except sqlalchemy.exc.ProgrammingError as e:
+        db.session.rollback()
+        
+        if 'does not exist' in str(e):
+            raise ColumnDoesNotExist(e)
+        else:
+            raise e
+
+
+def get_foreign_key_constraints(table_name):
+    sql = '''
+SELECT conrelid::regclass AS table_name,
+       conname AS constraint_name,
+       pg_get_constraintdef(c.oid) AS constraint_def
+FROM   pg_constraint c
+       JOIN pg_namespace n ON n.oid = c.connamespace
+WHERE  contype = 'f'
+       AND n.nspname = 'public'
+       AND conrelid::regclass::text = '{table_name}'
+ORDER  BY conrelid::regclass::text;
+'''
+    
+    rows = db.session.execute(sql.format(table_name=table_name)).fetchall()
+
+    out = []
+    for row in rows:
+        out.append(Constraint(row['table_name'], row['constraint_name'], row['constraint_def']))
+
+    return out
 
 
 def update_database(current_db_version):
@@ -100,6 +167,128 @@ def update_database(current_db_version):
         # Update the version
         log.info('Updating DB Version to 0.1.X')
         current_db_version = models.CmsVersionHistory(0, 1)
+        db.session.add(current_db_version)
+        db.session.commit()
+    
+    if current_db_version.minor_version == 1:
+        log.info('Updating from v0.1.X to v0.2.X')
+
+        # CmsAuthor table will have been created already
+        
+        # Add author_id column to CmsUser
+        log.info('Adding author_id to user table')
+        try:
+            add_column('ALTER TABLE {} ADD COLUMN author_id BIGINT REFERENCES {}(id)'.format(
+                models.CmsUser.__tablename__,
+                models.CmsAuthor.__tablename__
+            ))
+        except ColumnAlreadyExists:
+            log.info('Column already exists: skipping')
+        
+        log.info('Adding missing authors')
+        users = db.session.query(
+            models.CmsUser
+        ).filter(
+            models.CmsUser.author_id == None
+        ).order_by(
+            models.CmsUser.id
+        ).all()
+
+        for user in users:
+            log.info(' > Adding author for user "{}"'.format(user.name))
+            user.author = models.CmsAuthor(user.name)
+            db.session.commit()
+        else:
+            log.info('No authors to add')
+        
+        log.info('Making author_id NOT NULL')
+        alter_column('ALTER TABLE {} ALTER COLUMN author_id SET NOT NULL'.format(
+            models.CmsUser.__tablename__
+        ))
+
+        log.info('Changing post.author_id to reference author instead of user')
+
+        log.info('> Temporarily renaming author_id to author_id_old')
+
+        # First look for the old constraint
+
+        constraints = get_foreign_key_constraints(models.CmsPost.__tablename__)
+        has_old_constraint = False
+        for constraint in constraints:
+            # print('{}.{} -> {}'.format(constraint.table_name, constraint.constraint_name, constraint.definition))
+            if '(author_id)' in constraint.definition \
+                    and '{}(id)'.format(models.CmsUser.__tablename__) in constraint.definition:
+                has_old_constraint = True
+                break
+
+        if has_old_constraint:
+            # Rename the column
+            rename_column('ALTER TABLE {} RENAME COLUMN author_id TO author_id_old'.format(
+                models.CmsPost.__tablename__
+            ))
+        else:
+            log.info('It looks like the column has already been renamed - skipping')
+
+        log.info('> Creating the new author_id column')
+        
+        try:
+            add_column('ALTER TABLE {} ADD COLUMN author_id BIGINT REFERENCES {}(id)'.format(
+                models.CmsPost.__tablename__,
+                models.CmsAuthor.__tablename__
+            ))
+        except ColumnAlreadyExists:
+            log.info('Column already exists - skipping')
+
+        log.info('> Updating author_id values')
+        posts = db.session.query(
+            models.CmsPost
+        ).filter(
+            models.CmsPost.author_id == None
+        ).order_by(
+            models.CmsPost.id
+        ).all()
+
+        for post in posts:
+            log.info('> > Updating "{}"'.format(post.title))
+            old_author_id = db.session.execute('SELECT author_id_old FROM {} WHERE id={}'.format(
+                models.CmsPost.__tablename__, post.id
+            )).fetchall()[0][0]
+            
+            new_author_id = db.session.execute('SELECT author_id FROM {} WHERE id={}'.format(
+                models.CmsUser.__tablename__, old_author_id
+            )).fetchall()[0][0]
+
+            post.author_id = new_author_id
+            db.session.commit()
+        else:
+            log.info('No author ids to update')
+
+        log.info('> Adding NOT NULL constraint')
+
+        alter_column('ALTER TABLE {} ALTER COLUMN author_id SET NOT NULL'.format(
+            models.CmsPost.__tablename__
+        ))
+
+        log.info('> Deleting old column')
+        
+        try:
+            drop_column('ALTER TABLE {} DROP COLUMN author_id_old'.format(
+                models.CmsPost.__tablename__
+            ))
+        except ColumnDoesNotExist:
+            log.info('Column doesn\'t exist: skipping')
+        
+        log.info('Adding tag_type to tag table')
+        try:
+            add_column('ALTER TABLE {} ADD COLUMN tag_type CHARACTER VARYING'.format(
+                models.CmsTag.__tablename__
+            ))
+        except ColumnAlreadyExists:
+            log.info('Column already exists - skipping')
+
+        # Update the version
+        log.info('Updating DB Version to 0.2.X')
+        current_db_version = models.CmsVersionHistory(0, 2)
         db.session.add(current_db_version)
         db.session.commit()
 

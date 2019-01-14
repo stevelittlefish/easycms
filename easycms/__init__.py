@@ -32,7 +32,7 @@ post_types = None
 # too
 
 MAJOR_VERSION = 0
-MINOR_VERSION = 1
+MINOR_VERSION = 2
 VERSION = '{}.{}.X'.format(MAJOR_VERSION, MINOR_VERSION)
 
 
@@ -67,7 +67,7 @@ def init(app, engine_or_connection, metadata=None, all_post_types=['post'], tabl
     elif not update_db:
         raise Exception('EasyCMS version is {} but you database is currently '
                         'on version {}. To update the database you need to '
-                        'pass updated_db=True into easycms.init(...). '
+                        'pass update_db=True into easycms.init(...). '
                         .format(VERSION, current_version.version_string))
     else:
         migration.update_database(current_version)
