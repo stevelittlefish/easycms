@@ -17,6 +17,7 @@ from .editor import editor as blueprint  # noqa
 from .settings import init as init_settings
 from . import datautil
 from . import migration
+from .datautil import create_user  # noqa
 
 log = logging.getLogger(__name__)
 

@@ -60,8 +60,8 @@ def check_current_version(fix_missing=True, update_db=False):
             raise Exception('No version history in database!')
 
         # Insert the default version
-        log.info('No version in database: adding v0.0.X')
-        current_db_version = models.CmsVersionHistory(0, 0)
+        log.info('No version in database: adding {}'.format(easycms.VERSION))
+        current_db_version = models.CmsVersionHistory(easycms.MAJOR_VERSION, easycms.MINOR_VERSION)
         db.session.add(current_db_version)
         db.session.commit()
     
@@ -281,6 +281,14 @@ def update_database(current_db_version):
         log.info('Adding tag_type to tag table')
         try:
             add_column('ALTER TABLE {} ADD COLUMN tag_type CHARACTER VARYING'.format(
+                models.CmsTag.__tablename__
+            ))
+        except ColumnAlreadyExists:
+            log.info('Column already exists - skipping')
+
+        log.info('Adding external_code to tag table')
+        try:
+            add_column('ALTER TABLE {} ADD COLUMN external_code CHARACTER VARYING'.format(
                 models.CmsTag.__tablename__
             ))
         except ColumnAlreadyExists:

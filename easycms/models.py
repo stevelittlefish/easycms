@@ -134,17 +134,22 @@ def init(table_prefix, metadata, bind):
         # Allows tags to be handled differently, i.e. a tag with tag_type = "Product" may be used to link to
         # a product in an e-commerce site.  It's up to the application to manage these.
         tag_type = Column(String, nullable=True)
+        # This is a more or less un-used field - you can put whatever you want in here.  The intention of this
+        # field is that you can put something here which will link this tag to an external resource, for example
+        # you could put the code of a product here to link this tag to that product.
+        external_code = Column(String, nullable=True)
         
         __table_args__ = (
             UniqueConstraint(post_type, name),
             UniqueConstraint(post_type, code)
         )
 
-        def __init__(self, post_type, name, tag_type=None):
+        def __init__(self, post_type, name, tag_type=None, external_code=None):
             self.post_type = post_type
             self.name = name
             self.code = self.name_to_code(name)
             self.tag_type = tag_type
+            self.external_code = external_code
 
         @staticmethod
         def name_to_code(name):

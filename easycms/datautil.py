@@ -13,6 +13,21 @@ __author__ = 'Stephen Brown (Little Fish Solutions LTD)'
 log = logging.getLogger(__name__)
 
 
+def create_user(name, session=None, commit=False):
+    author = models.CmsAuthor(name)
+    user = models.CmsUser(name, author)
+
+    if session is None:
+        session = db.session
+
+    session.add(user)
+    
+    if commit:
+        session.commit()
+
+    return user
+
+
 def update_all_pages():
     log.info('Ensuring all pages are up-to-date')
     
