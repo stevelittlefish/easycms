@@ -126,7 +126,7 @@ def init_cms(app):
     log.info('Initialising CMS')
     # all_post_types = ['post', 'event']
     update_db = False
-    # update_db = True
+    update_db = True
     easycms.init(app, db.engine, metadata=metadata,
                  access_control_config=cmsconfig.CmsAccessControl(),
                  settings=cmsconfig.settings, all_post_types=posttypes.ALL_POST_TYPES,

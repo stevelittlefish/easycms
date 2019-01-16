@@ -409,11 +409,12 @@ def init(table_prefix, metadata, bind):
         post_id = Column(BigInteger, ForeignKey(prefix + 'post.id'), nullable=False)
         author_name = Column(String, nullable=True)
         author_email = Column(String, nullable=True)
-        author_url = Column(String, nullable=True)
         author_ip = Column(String, nullable=True)
         author_user_agent = Column(String)
-        author_id = Column(BigInteger, ForeignKey(prefix + 'user.id'), nullable=True)
-        edited_by_id = Column(BigInteger, ForeignKey(prefix + 'user.id'), nullable=True)
+        author_id = Column(BigInteger, ForeignKey(prefix + 'author.id'), nullable=True)
+        author_user_id = Column(BigInteger, ForeignKey(prefix + 'user.id'), nullable=True)
+        edited_by_id = Column(BigInteger, ForeignKey(prefix + 'author.id'), nullable=True)
+        edited_by_user_id = Column(BigInteger, ForeignKey(prefix + 'user.id'), nullable=True)
         timestamp = Column(DateTime, nullable=False)
         approved = Column(Boolean, nullable=False)
         content = Column(String, nullable=False)
@@ -423,8 +424,10 @@ def init(table_prefix, metadata, bind):
         reply_to_id = Column(BigInteger, ForeignKey(prefix + 'comment.id'), nullable=True)
 
         post = relationship('CmsPost', uselist=False, backref=backref('comments'))
-        author = relationship('CmsUser', foreign_keys=[author_id], uselist=False)
-        editor = relationship('CmsUser', foreign_keys=[edited_by_id], uselist=False)
+        author = relationship('CmsAuthor', foreign_keys=[author_id], uselist=False)
+        author_user = relationship('CmsUser', foreign_keys=[author_user_id], uselist=False)
+        editor = relationship('CmsAuthor', foreign_keys=[edited_by_id], uselist=False)
+        editor_user = relationship('CmsUser', foreign_keys=[edited_by_user_id], uselist=False)
         reply_to = relationship('CmsComment', uselist=False, remote_side=[id], backref=backref('replies', order_by=timestamp))
     
     class CmsVersionHistory(Model):
