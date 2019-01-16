@@ -152,6 +152,13 @@ def get_posts_by_category_query(post_type, category_code, allow_unpublished=Fals
     return query
 
 
+def get_recent_posts(post_type, num_posts, allow_unpublished=False, session=None):
+    query = get_all_posts_query(post_type=post_type, allow_unpublished=allow_unpublished,
+                                session=session)
+
+    return query[:num_posts]
+
+
 def get_posts_by_category_pager(post_type, category_code, page, num_per_page=10,
                                 allow_unpublished=False, session=None):
 
@@ -227,3 +234,53 @@ def get_category_by_code(post_type, code, session=None):
     )
 
     return query.one_or_none()
+
+
+def get_all_categories(post_type, session=None):
+    if session is None:
+        session = models.session
+
+    query = session.query(
+        models.CmsCategory
+    ).filter(
+        models.CmsCategory.post_type == post_type
+    ).order_by(
+        models.CmsCategory.name
+    )
+
+    return query.all()
+
+
+def get_all_tags(post_type, session=None):
+    if session is None:
+        session = models.session
+
+    query = session.query(
+        models.CmsTag
+    ).filter(
+        models.CmsTag.post_type == post_type
+    ).order_by(
+        models.CmsTag.name
+    )
+
+    return query.all()
+
+
+def get_special_tags(post_type=None, tag_type=None, external_code=None, session=None):
+    if session is None:
+        session = models.session
+
+    query = session.query(
+        models.CmsTag
+    )
+    
+    if post_type:
+        query = query.filter(models.CmsTag.post_type == post_type)
+
+    if tag_type:
+        query = query.filter(models.CmsTag.tag_type == tag_type)
+
+    if external_code:
+        query = query.filter(models.CmsTag.external_code == external_code)
+
+    return query.all()
