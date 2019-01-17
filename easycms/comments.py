@@ -42,6 +42,10 @@ def get_ckeditor_config():
         anchor_enabled=False,
         image_enabled=False,
         codesnippet_enabled=False,
+        link_enabled=False,
+        table_enabled=False,
+        styles_enabled=False,
+        hr_enabled=False,
         allow_all_extra_content=False,
         format_tags='p;h4',
         custom_styles_js_url=None,
@@ -54,7 +58,7 @@ def get_comment_reply_html_field(name, value=None, required=False):
     return easyforms.CkeditorField(name, value=value, required=required, config=get_ckeditor_config())
 
 
-def create_and_process_comment_form(post, session=None, action=''):
+def create_and_process_comment_form(post, session=None, action='', form_type=easyforms.VERTICAL):
     """
     COMMITS!
     """
@@ -88,7 +92,7 @@ def create_and_process_comment_form(post, session=None, action=''):
     fields.append(easyforms.SubmitButton('Add Comment', css_class='btn-primary btn-lg'))
 
     try:
-        form = Form(fields, submit_text=None, label_width=2, action=action)
+        form = Form(fields, submit_text=None, label_width=2, action=action, form_type=form_type)
     except easyforms.exceptions.FieldNotFound as e:
         # this is to catch the errors from people hacking the blog forms by submitting empty fields
         log.warn('Someone trying to hack us? %s' % e)

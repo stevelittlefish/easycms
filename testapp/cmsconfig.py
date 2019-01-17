@@ -90,6 +90,7 @@ def comment_added_hook(comment):
 
 ckeditor_config = easyforms.CkeditorConfig(
     allow_all_extra_content=False,
+    strikethrough_enabled=True,
     disallowed_content='img[height]',
     # custom_styles_js_url='/static/js/ckeditor_styles.js',
     # custom_contents_css_url='/static/css/ckeditor_contents.css',

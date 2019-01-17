@@ -23,7 +23,7 @@
 	<div class="big-space-after box">
 		<h3>Original Comment</h3>
 		<p>
-			By {% if comment.author_name %}{{ comment.author_name }}{% else %}{{ comment.author.full_name }}{% endif %}
+			By {% if comment.author_name %}{{ comment.author_name }}{% else %}{{ comment.author.name }}{% endif %}
 			on {{ comment.timestamp | format_datetime }} on
 			<strong>{{ comment.post.title }}</strong>
 		</p>

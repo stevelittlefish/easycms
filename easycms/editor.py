@@ -19,6 +19,7 @@ from littlefish.pager import Pager
 from titlecase import titlecase
 import sqlalchemy.exc
 import flaskfilemanager
+from sqlalchemy import or_
 
 from . import accesscontrol, models, cmsutil
 from .settings import get_settings, get_page_defs
@@ -828,11 +829,11 @@ def view_comments(deleted='False', pending='True', approved='True'):
                 pass
             else:
                 # All but approved
-                comments_query = comments_query.filter(db.or_(models.CmsComment.approved == False, models.CmsComment.deleted == True))
+                comments_query = comments_query.filter(or_(models.CmsComment.approved == False, models.CmsComment.deleted == True))
         else:
             if show_approved:
                 # Deleted and approved only
-                comments_query = comments_query.filter(db.or_(models.CmsComment.approved == True, models.CmsComment.deleted == True))
+                comments_query = comments_query.filter(or_(models.CmsComment.approved == True, models.CmsComment.deleted == True))
             else:
                 # Don't show pending or approved
                 comments_query = comments_query.filter(models.CmsComment.deleted == True)

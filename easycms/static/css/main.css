@@ -220,3 +220,28 @@ tr.disabled td {
   line-height  : .5;
   border-radius : .2rem;
 }
+
+.table-comments {
+	width: 100%;
+}
+
+.table-comments td.timestamp {
+	text-align: right;
+}
+
+.table-comments tr td {
+	background-color: #ccffcc;
+}
+
+.table-comments tr.pending td {
+	background-color: #eeeeee;
+}
+
+.table-comments tr.deleted td {
+	background-color: #ffbbbb;
+	color: #550000;
+}
+
+.table-comments tr.spacer td {
+	background: white;
+}

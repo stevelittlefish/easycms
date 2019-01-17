@@ -12,42 +12,42 @@
 	<p>
 		{% if show_deleted %}
 			<a href="{{ url_for('easycms_editor.view_comments', deleted=False, approved=show_approved, pending=show_pending) }}"
-			   class="btn btn-default">
+			   class="btn btn-secondary">
 				Hide Deleted
 			</a>
 		{% else %}
 			<a href="{{ url_for('easycms_editor.view_comments', deleted=True, approved=show_approved, pending=show_pending) }}"
-			   class="btn btn-default">
+			   class="btn btn-secondary">
 				Show Deleted
 			</a>
 		{% endif %}
 
 		{% if show_pending %}
 			<a href="{{ url_for('easycms_editor.view_comments', deleted=show_deleted, approved=show_approved, pending=False) }}"
-			   class="btn btn-default">
+			   class="btn btn-secondary">
 				Hide Pending
 			</a>
 		{% else %}
 			<a href="{{ url_for('easycms_editor.view_comments', deleted=show_deleted, approved=show_approved, pending=True) }}"
-			   class="btn btn-default">
+			   class="btn btn-secondary">
 				Show Pending
 			</a>
 		{% endif %}
 
 		{% if show_approved %}
 			<a href="{{ url_for('easycms_editor.view_comments', deleted=show_deleted, approved=False, pending=show_pending) }}"
-			   class="btn btn-default">
+			   class="btn btn-secondary">
 				Hide Approved
 			</a>
 		{% else %}
 			<a href="{{ url_for('easycms_editor.view_comments', deleted=show_deleted, approved=True, pending=show_pending) }}"
-			   class="btn btn-default">
+			   class="btn btn-secondary">
 				Show Approved
 			</a>
 		{% endif %}
 	</p>
 
-	<table class="table table-comments" style="width: auto;">
+	<table class="table table-comments">
 		<tbody>
 			{% for comment in pager.items %}
 				<tr {% if comment.deleted %}class="deleted"{% elif not comment.approved %}class="pending"{% endif %} id="comment-{{ comment.id }}">
@@ -67,10 +67,10 @@
 					{% else %}
 						<td>{{ comment.author_name }} &lt;{{ comment.author_email }}&gt;</td>
 					{% endif %}
-					<td>{{ comment.timestamp | format_datetime_long }}</td>
+					<td class="timestamp">{{ comment.timestamp | format_datetime_long }}</td>
 				</tr>
 				<tr class="user-agent {% if comment.deleted %}deleted{% elif not comment.approved %}pending{% endif %}">
-					<td colspan="4">
+					<td colspan="3">
 						{% if comment.author_user_agent %}
 							{{ comment.author_user_agent }}
 						{% else %}
@@ -79,7 +79,7 @@
 					</td>
 				</tr>
 				<tr {% if comment.deleted %}class="deleted"{% elif not comment.approved %}class="pending"{% endif %}>
-					<td colspan="4">
+					<td colspan="3">
 						<div>
 							On
 							<a href="{{ comment.post.front_end_url if settings.front_end_urls_enabled else comment.post.editor_url }}">
@@ -103,6 +103,10 @@
 								{% endif %}
 							</form>
 						</div>
+					</td>
+				</tr>
+				<tr class="spacer">
+					<td colspan="4">
 					</td>
 				</tr>
 			{% endfor %}
