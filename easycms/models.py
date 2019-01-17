@@ -363,14 +363,22 @@ def init(table_prefix, metadata, bind):
                 out.append(img['src'])
             return out
         
-        def can_see_comments(self):
+        def has_visible_comments(self):
             """
             :return: True if the current logged in user can see any of the comments on this post
             """
             for comment in self.comments:
-                if comment.can_see():
+                if comment.visible():
                     return True
             return False
+        
+        def num_visible_comments(self):
+            num_comments = 0
+            for comment in self.comments:
+                if comment.visible():
+                    num_comments += 1
+
+            return num_comments
         
         @property
         def editor_url(self):
@@ -449,7 +457,7 @@ def init(table_prefix, metadata, bind):
             self.author_name = author_name
             self.author_email = author_email
             self.author_ip = author_ip
-            self.user_agent = user_agent
+            self.author_user_agent = user_agent
             self.reply_to = reply_to
 
             self.timestamp = datetime.datetime.utcnow()
@@ -460,7 +468,7 @@ def init(table_prefix, metadata, bind):
             self.editor = None
             self.editor_user = None
 
-        def can_see(self):
+        def visible(self):
             """
             :return: True if the current logged in user can see this comment
             """

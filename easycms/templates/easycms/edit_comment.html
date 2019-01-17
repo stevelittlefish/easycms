@@ -1,0 +1,41 @@
+{% extends 'easycms/base.html' %}
+
+{% block easycms_title %}Comments{% endblock easycms_title %}
+
+{% block easycms_content %}
+	<div class="button-list">
+		<a class="btn btn-secondary" href="{{ url_for('.view_comments') }}">
+			<span class="oi" data-glyph="arrow-left"></span> View All Comments
+		</a>
+
+		{% if settings.front_end_urls_enabled %}
+			<a class="btn btn-secondary" href="{{ comment.post.front_end_url }}">
+				<span class="oi" data-glyph="arrow-left"></span> View Blog Post
+			</a>
+		{% endif %}
+	</div>
+
+	<p class="info">
+		If you delete a part of someones comment, you should add the text <strong>[removed]</strong> into the
+		deleted section. This makes it clear to the user how their comment has been altered.
+	</p>
+
+	<div class="big-space-after box">
+		<h3>Original Comment</h3>
+		<p>
+			By {% if comment.author_name %}{{ comment.author_name }}{% else %}{{ comment.author.full_name }}{% endif %}
+			on {{ comment.timestamp | format_datetime }} on
+			<strong>{{ comment.post.title }}</strong>
+		</p>
+		<p>
+			{% if comment.original_content %}
+				{{ comment.original_content | safe }}
+			{% else %}
+				{{ comment.content | safe }}
+			{% endif %}
+		</p>
+	</div>
+
+
+	{{ form.render() }}
+{% endblock easycms_content %}

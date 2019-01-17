@@ -43,7 +43,7 @@
 
 
 {% macro draw_comment(comment) %}
-	{% if comment.can_see() %}
+	{% if comment.visible() %}
 		<div class="comment {% if comment.deleted %}deleted{% elif not comment.approved %}pending{% endif %} {% if comment.reply_to %}comment-reply{% endif %}">
 			<div class="author">
 				{% if comment.author %}
@@ -70,16 +70,13 @@
 				{% endif %}
 				
 				{% if can_manage_comments %}
-					<div class="alert alert-danger">
-						TODO
-					</div>
-					<a href="{{ url_for('blog.edit_comment', comment_id=comment.id) }}" class="btn btn-default btn-xs edit-button">
+					<a href="{{ url_for('easycms_editor.edit_comment', comment_id=comment.id) }}" class="btn btn-secondary btn-xs edit-button">
 						Edit
 					</a>
 				{% endif %}
 
 				{% if comment.approved and not comment.deleted%}
-					<a href="{{ url_for('main.view_blog_post', post_code=post.code, reply_to=comment.id) }}" class="btn btn-default btn-xs reply-button"
+					<a href="{{ url_for('main.view_blog_post', post_code=post.code, reply_to=comment.id) }}" class="btn btn-secondary btn-xs reply-button"
 					        data-author="{{ comment.author.name if comment.author else comment.author_name }}"
 							data-comment-id="{{ comment.id }}">
 						Reply
@@ -126,7 +123,7 @@
 
 		{{ post.content | safe }}
 
-		{% if post.can_see_comments() %}
+		{% if post.has_visible_comments() %}
 			<div class="comments" id="comments-{{ post.id }}">
 				<h4>Comments</h4>
 				{% for comment in post.comments %}
@@ -143,7 +140,7 @@
 			<h3 id="leave-a-comment">Leave a Comment</h3>
 			<div class="space-after" id="reply-to-comment" style="display: none;">
 				<h3>Reply to Comment by <span id="comment-author"></span></h3>
-				<a class="cancel-reply">Cancel Reply</a>
+				<a class="btn btn-xs btn-secondary cancel-reply" href="javascript: void(0);">Cancel Reply</a>
 			</div>
 			<div class="container flashed-alerts">
 				{% with messages = get_flashed_messages(with_categories=true) %}

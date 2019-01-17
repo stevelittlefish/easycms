@@ -78,9 +78,10 @@ def comment_added_hook(comment):
     # If the comment is an admin and it is a reply, send an email to the user whose comment is being replied to
     # TODO: move this into a separate hook
     if comment.approved and comment.reply_to_id:
-        email = comment.reply_to.get_email_address()
-        name = comment.reply_to.get_author_name()
-        sendemail.send_blog_comment_reply_notification_email(email, name, comment)
+        # email = comment.reply_to.get_email_address()
+        # name = comment.reply_to.get_author_name()
+        # sendemail.send_blog_comment_reply_notification_email(email, name, comment)
+        log.info('TODO: replies')
 
     if not comment.approved:
         # Send the notification emails

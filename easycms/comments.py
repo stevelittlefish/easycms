@@ -50,6 +50,10 @@ def get_ckeditor_config():
     )
 
 
+def get_comment_reply_html_field(name, value=None, required=False):
+    return easyforms.CkeditorField(name, value=value, required=required, config=get_ckeditor_config())
+
+
 def create_and_process_comment_form(post, session=None, action=''):
     """
     COMMITS!
@@ -78,8 +82,7 @@ def create_and_process_comment_form(post, session=None, action=''):
                                            value=request.cookies.get(constants.COMMENT_EMAIL_COOKIE_NAME)))
         fields.append(easyforms.TextAreaField('content', label='Comment', required=True))
     else:
-        # fields.append(expressfields.ProductEditorHtmlField('content', label='Comment', required=True, no_smiley=True, no_image=True))
-        fields.append(easyforms.CkeditorField('content', config=get_ckeditor_config()))
+        fields.append(get_comment_reply_html_field('content', required=True))
 
     fields.append(easyforms.HiddenField('reply-to', ''))
     fields.append(easyforms.SubmitButton('Add Comment', css_class='btn-primary btn-lg'))

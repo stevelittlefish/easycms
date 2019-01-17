@@ -284,6 +284,53 @@ a.blog-snippet:hover {
   }
 }
 
+/* Blog Comments */
+.blog-post #add-comment {
+  margin: 4px 0;
+  padding: 8px 0;
+}
+.blog-post .comments {
+  margin: 4px 0;
+  padding: 8px 0;
+}
+.blog-post .comments .comment {
+  border: 1px solid #cccccc;
+  padding: 15px 15px 5px;
+}
+.blog-post .comments .comment .author {
+  margin: 5px 0;
+  font-size: 1.2em;
+}
+.blog-post .comments .comment div.info {
+  font-size: 0.8em;
+  margin-bottom: 9px;
+}
+.blog-post .comments .comment + .comment {
+  margin-top: 15px;
+}
+.blog-post .comments .comment.pending {
+  color: #777;
+  border: 1px solid #bbb;
+}
+.blog-post .comments .comment.deleted {
+  color: #700;
+  border: 1px solid #d99;
+}
+.blog-post .comments .comment.comment-reply {
+  margin-left: 50px;
+  background-color: #e9f0f3;
+}
+.blog-post .comments .comment-content .reply-button {
+  display: block;
+  float: right;
+  margin-left: 15px;
+}
+.blog-post .comments .comment-content .edit-button {
+  display: block;
+  float: right;
+  margin-left: 15px;
+}
+
 /* Bootstrap 4 Stuff *********************************************************/
 
 .navbar-dark .navbar-nav .nav-link {
@@ -292,4 +339,22 @@ a.blog-snippet:hover {
 
 .navbar-dark .navbar-nav .nav-link:hover {
     color: rgba(255,255,255,1);
+}
+
+.btn-group-xs > .btn,
+.btn-xs {
+    padding  : .5rem .4rem;
+    font-size  : (12rem / 16);
+    line-height  : .5;
+}
+
+.table {
+	max-width: 100%;
+	margin-bottom: $spacer;
+	background-color: $table-bg; // Reset for nesting within parents with `background-color`.
+
+.table td > .btn-xs,
+.table th > .btn-xs {
+	margin-top: -3px;
+	margin-bottom: -3px;
 }

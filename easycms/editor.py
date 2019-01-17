@@ -24,6 +24,7 @@ from . import accesscontrol, models, cmsutil
 from .settings import get_settings, get_page_defs
 from .models import db
 import easycms
+from . import comments
 
 __author__ = 'Stephen Brown (Little Fish Solutions LTD)'
 
@@ -805,4 +806,116 @@ def delete_post(post_id):
 
     return render_template('easycms/delete_post.html', post=post)
 
+
+@editor.route('/comments', methods=['GET', 'POST'])
+@editor.route('/comments/<string:deleted>/<string:pending>/<string:approved>', methods=['GET', 'POST'])
+@accesscontrol.can_view_editor
+def view_comments(deleted='False', pending='True', approved='True'):
+    show_deleted = deleted == 'True'
+    show_pending = pending == 'True'
+    show_approved = approved == 'True'
+
+    comments_query = db.session.query(
+        models.CmsComment
+    ).order_by(
+        models.CmsComment.timestamp.desc()
+    )
+
+    if show_deleted:
+        if show_pending:
+            if show_approved:
+                # Show all posts
+                pass
+            else:
+                # All but approved
+                comments_query = comments_query.filter(db.or_(models.CmsComment.approved == False, models.CmsComment.deleted == True))
+        else:
+            if show_approved:
+                # Deleted and approved only
+                comments_query = comments_query.filter(db.or_(models.CmsComment.approved == True, models.CmsComment.deleted == True))
+            else:
+                # Don't show pending or approved
+                comments_query = comments_query.filter(models.CmsComment.deleted == True)
+    else:
+        # Don't show deleted comments
+        if show_pending:
+            if show_approved:
+                # All non-deleted posts
+                comments_query = comments_query.filter(models.CmsComment.deleted == False)
+            else:
+                # Pending only
+                comments_query = comments_query.filter(models.CmsComment.deleted == False, models.CmsComment.approved == False)
+        else:
+            if show_approved:
+                # Approved only
+                comments_query = comments_query.filter(models.CmsComment.deleted == False, models.CmsComment.approved == True)
+            else:
+                # Show nothing!
+                comments_query = comments_query.filter(False)
+
+    page = request.args.get('page', '1')
+    pager = Pager(30, page, comments_query)
+    
+    ac = accesscontrol.get_access_control()
+
+    if request.method == 'POST' and ac.can_moderate_comments:
+        comment_id = request.form['comment']
+        comment = db.session.query(
+            models.CmsComment
+        ).filter(
+            models.CmsComment.id == comment_id
+        ).one()
+
+        send_reply_email = False
+        if 'un-approve' in request.form:
+            comment.approved = False
+        elif 'approve' in request.form:
+            comment.approved = True
+            if comment.reply_to_id:
+                send_reply_email = True
+        elif 'delete' in request.form:
+            comment.deleted = True
+        elif 'un-delete' in request.form:
+            comment.deleted = False
+        else:
+            raise Exception('I don\'t know what you want me to do!')
+
+        db.session.commit()
+
+        if send_reply_email:
+            # email = comment.reply_to.get_email_address()
+            # name = comment.reply_to.get_author_name()
+            # TODO: send email (hook)
+            log.error('TODO: send email')
+            # sendemail.send_blog_comment_reply_notification_email(email, name, comment)
+
+    return render_template('easycms/view_comments.html', pager=pager, show_approved=show_approved,
+                           show_pending=show_pending, show_deleted=show_deleted)
+
+
+@editor.route('/comments/edit/<int:comment_id>', methods=['GET', 'POST'])
+@accesscontrol.can_moderate_comments
+def edit_comment(comment_id):
+    comment = easycms.get_comment_by_id(comment_id)
+    if not comment:
+        abort(404)
+
+    form = easyforms.Form([
+        comments.get_comment_reply_html_field('comment', required=True, value=comment.content)
+    ], submit_text='Save Changes')
+
+    if form.ready:
+        if not comment.original_content:
+            comment.original_content = comment.content
+        comment.content = form['comment']
+        comment.edit_timestamp = datetime.datetime.utcnow()
+        ac = accesscontrol.get_access_control()
+        user = ac.get_logged_in_cms_user()
+        comment.editor_user = user
+        comment.editor = user.author
+
+        flash('Comment by has been successfully edited', 'success')
+        db.session.commit()
+
+    return render_template('easycms/edit_comment.html', form=form, comment=comment)
 

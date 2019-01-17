@@ -67,6 +67,13 @@
 			Categories
 		</a>
 	</li>
+	{% if settings.comments_enabled %}
+		<li class="nav-item">
+			<a class="nav-link" href="{{ url_for('.view_comments') }}">
+				Comments
+			</a>
+		</li>
+	{% endif %}
 {% endblock easycms_main_menu %}
 
 
