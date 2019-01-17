@@ -482,6 +482,9 @@ def init(table_prefix, metadata, bind):
 
             return False
         
+        def get_author_name(self):
+            return self.author.name if self.author else self.author_name
+        
     class CmsVersionHistory(Model):
         """
         Used to store the version in the database so that we can automatically update the tables

@@ -17,16 +17,54 @@ from .models import db
 from . import models
 from . import customfields
 from . import constants
+from .settings import get_settings
+import easycms
 
 __author__ = 'Stephen Brown (Little Fish Solutions LTD)'
 
 log = logging.getLogger(__name__)
 
 
-def create_and_process_comment_form(post, session):
+class FakeForm():
+    def render(self):
+        return flask.Markup('<div class="alert alert-danger"><strong style="color: red;">Comments Disabled</strong></div>')
+
+
+def get_ckeditor_config():
+    return get_settings().ckeditor_config.clone(
+        subscript_enabled=False,
+        superscript_enabled=False,
+        cut_enabled=False,
+        copy_enabled=False,
+        paste_enabled=False,
+        undo_enabled=False,
+        redo_enabled=False,
+        anchor_enabled=False,
+        image_enabled=False,
+        codesnippet_enabled=False,
+        allow_all_extra_content=False,
+        format_tags='p;h4',
+        custom_styles_js_url=None,
+        custom_contents_css_url=None,
+        force_paste_as_plain_text=True
+    )
+
+
+def create_and_process_comment_form(post, session=None, action=''):
     """
     COMMITS!
     """
+    if session is None:
+        session = db.session
+    
+    # Move post onto the correct session
+    post = session.merge(post)
+
+    settings = get_settings()
+    
+    if not settings.comments_enabled:
+        return FakeForm()
+
     ac = accesscontrol.get_access_control()
     error = None
 
@@ -41,13 +79,13 @@ def create_and_process_comment_form(post, session):
         fields.append(easyforms.TextAreaField('content', label='Comment', required=True))
     else:
         # fields.append(expressfields.ProductEditorHtmlField('content', label='Comment', required=True, no_smiley=True, no_image=True))
-        fields.append(easyforms.HtmlField('content'))
+        fields.append(easyforms.CkeditorField('content', config=get_ckeditor_config()))
 
     fields.append(easyforms.HiddenField('reply-to', ''))
     fields.append(easyforms.SubmitButton('Add Comment', css_class='btn-primary btn-lg'))
 
     try:
-        form = Form(fields, submit_text=None, label_width=2, action='#add-comment')
+        form = Form(fields, submit_text=None, label_width=2, action=action)
     except easyforms.exceptions.FieldNotFound as e:
         # this is to catch the errors from people hacking the blog forms by submitting empty fields
         log.warn('Someone trying to hack us? %s' % e)
@@ -60,9 +98,6 @@ def create_and_process_comment_form(post, session):
             except ValueError:
                 log.warn('Someone has submitted some junk in the reply id field!  Value=%s' % form['reply-to'])
                 abort(400)
-
-            # reply_to_id = form['reply-to']
-            # reply_to_author = get_comment_author_name(reply_to_id)
 
     if form.ready:
         if ac.can_post_comments_as_admin():
@@ -77,20 +112,16 @@ def create_and_process_comment_form(post, session):
         reply_comment = None
 
         if reply_id:
-            reply_comment = db.session.query(
-                models.CmsComment
-            ).filter(
-                models.CmsComment.id == reply_id
-            ).one_or_none()
-
+            reply_comment = easycms.get_comment_by_id(reply_id)
             if not reply_comment:
                 abort(404)
 
         if ac.can_post_comments_as_admin():
-            # TODO: fix this
-            comment = models.CmsComment(post, content, author=ac.get_logged_in_cms_user(),
-                                        author_ip=request.remote_addr,
-                                        user_agent=str(request.user_agent), reply_to=reply_comment)
+            logged_in_user = session.merge(ac.get_logged_in_cms_user())
+
+            comment = models.CmsComment(post, content, user=logged_in_user, author=logged_in_user.author,
+                                        author_ip=request.remote_addr, user_agent=str(request.user_agent),
+                                        reply_to=reply_comment)
             comment.approved = True
         else:
             # Save values in cookie
@@ -120,7 +151,6 @@ def create_and_process_comment_form(post, session):
                 log.info('ANTISPAM! User Agent: %s | ip: %s | Post Data: %s' % (request.user_agent, request.remote_addr, request.form))
             else:
                 # Make the comment
-                # TODO: fix this
                 comment = models.CmsComment(
                     post, content, author_name=form['name'], author_email=form['email'],
                     author_ip=request.remote_addr, user_agent=str(request.user_agent),
@@ -133,7 +163,9 @@ def create_and_process_comment_form(post, session):
             session.add(comment)
             session.commit()
             
-            log.info('TODO: implement emails!')
+            comment_added_hook = settings.comment_added_hook
+            if comment_added_hook:
+                comment_added_hook(comment)
             # TODO
 
             # # If the comment is an admin and it is a reply, send an email to the user whose comment is being replied to

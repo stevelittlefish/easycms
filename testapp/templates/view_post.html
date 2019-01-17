@@ -4,8 +4,42 @@
 
 {% block description %}{{ post.get_html_description() }}{% endblock description %}
 
+{% block head_extra %}
+	<script>
+		function showReplyForm(commentId, author) {
+			$("#leave-a-comment").hide();
+			$("#reply-to-comment").show();
+			$("#comment-author").text(author);
+			$("#reply-to").val(commentId);
+			$("#add-comment")[0].scrollIntoView();
+		}
+
+		$(document).ready(function(){
+			{% if reply_to_id %}
+				showReplyForm({{ reply_to_id }}, "{{ reply_to_author_name }}");
+			{% endif %}
+
+			$(".reply-button").click(function(){
+				showReplyForm($(this).data('comment-id'), $(this).data('author'));
+
+				return false;
+			});
+			$(".cancel-reply").click(function(){
+				$("#reply-to-comment").hide();
+				$("#leave-a-comment").show();
+				$("#reply-to").val('');
+
+				return false;
+		    });
+		});
+	</script>
+{% endblock head_extra %}
+
 {% block outer_banner %}
 {% endblock outer_banner %}
+
+{% block flashed_alerts %}
+{% endblock flashed_alerts %}
 
 
 {% macro draw_comment(comment) %}
@@ -13,13 +47,9 @@
 		<div class="comment {% if comment.deleted %}deleted{% elif not comment.approved %}pending{% endif %} {% if comment.reply_to %}comment-reply{% endif %}">
 			<div class="author">
 				{% if comment.author %}
-					<strong>{{ comment.author.full_name }}</strong>
-{#				{% elif comment.author_url %}#}
-{#					<a href="{{ comment.author_url }}">#}
-{#						<strong>{{ comment.author_name | safe }}</strong>#}
-{#					</a>#}
+					<strong>{{ comment.author.name }}</strong>
 				{% else %}
-					<strong>{{ comment.author_name | safe }}</strong>
+					<strong>{{ comment.author_name }}</strong>
 				{% endif %}
 				on {{ comment.timestamp | format_datetime_long }}
 				{% if comment.deleted %}(deleted){% elif not comment.approved %}(pending){% endif %}
@@ -28,7 +58,7 @@
 				<div class="info">
 					{% if comment.reply_to %}
 						{% if comment.reply_to.author %}
-							Reply to {{ comment.reply_to.author.full_name }}
+							Reply to {{ comment.reply_to.author.name }}
 						{% else %}
 							Reply to {{ comment.reply_to.author_name }}
 						{% endif %}
@@ -36,23 +66,21 @@
 				</div>
 				{{ comment.content | safe }}
 				{% if comment.original_content %}
-					<p class="info">Post edited by {{ comment.editor.full_name }} on {{ comment.edit_timestamp | format_date }}</p>
+					<p class="info">Post edited by {{ comment.editor.name }} on {{ comment.edit_timestamp | format_date }}</p>
 				{% endif %}
 				
-				<div class="alert alert-danger">
-					TODO
-				</div>
-				{#
 				{% if can_manage_comments %}
+					<div class="alert alert-danger">
+						TODO
+					</div>
 					<a href="{{ url_for('blog.edit_comment', comment_id=comment.id) }}" class="btn btn-default btn-xs edit-button">
 						Edit
 					</a>
 				{% endif %}
-				#}
 
 				{% if comment.approved and not comment.deleted%}
-					<a href="{{ url_for('blog.view_post', nice_name=post.nice_name, reply_to=comment.id) }}" class="btn btn-default btn-xs reply-button"
-					        data-author="{{ comment.author.full_name if comment.author else comment.author_name }}"
+					<a href="{{ url_for('main.view_blog_post', post_code=post.code, reply_to=comment.id) }}" class="btn btn-default btn-xs reply-button"
+					        data-author="{{ comment.author.name if comment.author else comment.author_name }}"
 							data-comment-id="{{ comment.id }}">
 						Reply
 					</a>
@@ -111,7 +139,27 @@
 
 		<hr>
 
-		{{ comments_form.render() }}
+		<div id="add-comment">
+			<h3 id="leave-a-comment">Leave a Comment</h3>
+			<div class="space-after" id="reply-to-comment" style="display: none;">
+				<h3>Reply to Comment by <span id="comment-author"></span></h3>
+				<a class="cancel-reply">Cancel Reply</a>
+			</div>
+			<div class="container flashed-alerts">
+				{% with messages = get_flashed_messages(with_categories=true) %}
+					{% if messages %}
+					<br><br>
+					{% endif %}
+					{% for category, message in messages %}
+						<div class="alert alert-{{ category }}">
+							{{ message }}
+						</div>
+					{% endfor %}
+				{% endwith %}
+			</div>
+
+			{{ comments_form.render() }}
+		</div>
 	</div>
 	
 	<div class="blog-snippet-list">

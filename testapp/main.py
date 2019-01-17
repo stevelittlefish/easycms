@@ -98,12 +98,31 @@ def view_blog_post(post_code):
     can_manage_comments = has_permission(Permissions.admin)
     show_tools = can_edit or can_edit_seo
 
-    comments_form = easycms.comments.create_and_process_comment_form(post, session=db.session)
+    reply_to_id = request.args.get('reply_to')
+    reply_to_author_name = None
+
+    # People trying to do SQL injection...
+    if reply_to_id is not None:
+        try:
+            int(reply_to_id)
+        except ValueError:
+            log.warn('Someone has submitted some junk in the reply id field (on the url)!  Value=%s' % reply_to_id)
+            abort(404)
+
+        reply_to_comment = easycms.get_comment_by_id(reply_to_id)
+        if reply_to_comment:
+            reply_to_author_name = reply_to_comment.get_author_name()
+        else:
+            reply_to_id = None
+
+    # comments_form = easycms.comments.create_and_process_comment_form(post, session=db.session)
+    comments_form = easycms.comments.create_and_process_comment_form(post)
 
     return render_template('view_post.html', post=post, prev_post=prev_post,
                            next_post=next_post, can_edit=can_edit, can_edit_seo=can_edit_seo,
                            show_tools=show_tools, related_posts=related_posts,
-                           comments_form=comments_form, can_manage_comments=can_manage_comments)
+                           comments_form=comments_form, can_manage_comments=can_manage_comments,
+                           reply_to_author_name=reply_to_author_name, reply_to_id=reply_to_id)
 
 
 @main.route('/login', methods=['GET', 'POST'])

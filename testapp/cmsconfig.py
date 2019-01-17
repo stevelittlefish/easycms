@@ -15,6 +15,7 @@ import auth
 import permissions
 from permissions import Permissions
 from constants import pagecodes
+import sendemail
 
 
 __author__ = 'Stephen Brown (Little Fish Solutions LTD)'
@@ -71,6 +72,21 @@ class CmsAccessControl(easycms.accesscontrol.AccessControlConfig):
         return permissions.has_permission(Permissions.admin)
 
 
+def comment_added_hook(comment):
+    print('~~~~~~~~~~~~~~~~~~~~~~~~~')
+    print(comment.approved)
+    # If the comment is an admin and it is a reply, send an email to the user whose comment is being replied to
+    # TODO: move this into a separate hook
+    if comment.approved and comment.reply_to_id:
+        email = comment.reply_to.get_email_address()
+        name = comment.reply_to.get_author_name()
+        sendemail.send_blog_comment_reply_notification_email(email, name, comment)
+
+    if not comment.approved:
+        # Send the notification emails
+        sendemail.send_blog_comment_notification_email('admin@blog.com', comment)
+
+
 ckeditor_config = easyforms.CkeditorConfig(
     allow_all_extra_content=False,
     disallowed_content='img[height]',
@@ -97,7 +113,9 @@ settings = easycms.settings.EasyCmsSettings(
     post_main_image_width=800,
     post_main_image_height=600,
     post_main_image_required=True,
-    view_post_url_function=lambda post: url_for('main.view_blog_post', post_code=post.code, _external=True)
+    view_post_url_function=lambda post: url_for('main.view_blog_post', post_code=post.code, _external=True),
+    comments_enabled=True,
+    comment_added_hook=comment_added_hook
 )
 
 page_defs = [

@@ -284,3 +284,15 @@ def get_special_tags(post_type=None, tag_type=None, external_code=None, session=
         query = query.filter(models.CmsTag.external_code == external_code)
 
     return query.all()
+
+
+def get_comment_by_id(comment_id, session=None):
+    if session is None:
+        session = models.session
+    
+    return session.query(
+        models.CmsComment
+    ).filter(
+        models.CmsComment.id == comment_id
+    ).one_or_none()
+

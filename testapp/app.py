@@ -35,6 +35,7 @@ def create_app():
     app.config['TEMPLATES_AUTO_RELOAD'] = True
     app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql+psycopg2://cmstestsite:power@127.0.0.1:5432/cmstestsite_db'
     app.config['FLASKFILEMANAGER_FILE_PATH'] = 'tmp-webapp-uploads'
+    
     log.info('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
     log.info(' Test App Starting')
     log.info('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')

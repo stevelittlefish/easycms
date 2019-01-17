@@ -50,7 +50,9 @@ class EasyCmsSettings(object):
             post_main_image_height=None,
             post_main_image_required=False,
             post_code_is_edittable=False,
-            view_post_url_function=None
+            view_post_url_function=None,
+            comments_enabled=False,
+            comment_added_hook=None,
     ):
         """
         :param home_link_text: Text for home link in editor
@@ -80,6 +82,10 @@ class EasyCmsSettings(object):
         :param view_post_url_function: Set to a function that takes a post as its only argument and returns a url
                                        to view that post. The returned URL must be a full URL (i.e. use
                                        _external=True if using flask.get_url)
+        :param comments_enabled: Are comments enabled?
+        :param comment_added_hook: Set to a function which takes a single parameter to add a comment hook.
+                                   Whenever a comment is added to the site this function will be called and the
+                                   newly added comment will be passed in
         """
         self.home_link_text = home_link_text
         self.home_link_endpoint = home_link_endpoint
@@ -106,6 +112,8 @@ class EasyCmsSettings(object):
         self.post_main_image_required = post_main_image_required
         self.post_code_is_edittable = post_code_is_edittable
         self.view_post_url_function = view_post_url_function
+        self.comments_enabled = comments_enabled
+        self.comment_added_hook = comment_added_hook
         
         if self._ckeditor_config is None:
             self._ckeditor_config = CkeditorConfig()
@@ -127,7 +135,7 @@ class EasyCmsSettings(object):
 
         return self._ckeditor_config.clone(
             filemanager_url=filemanager_url,
-            ckeditor_url=url_for('.static', filename='ckeditor/ckeditor.js')
+            ckeditor_url=url_for('easycms_editor.static', filename='ckeditor/ckeditor.js')
         )
 
 
