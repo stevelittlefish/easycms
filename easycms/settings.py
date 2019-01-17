@@ -53,6 +53,7 @@ class EasyCmsSettings(object):
             view_post_url_function=None,
             comments_enabled=False,
             comment_added_hook=None,
+            comment_reply_hook=None
     ):
         """
         :param home_link_text: Text for home link in editor
@@ -86,6 +87,9 @@ class EasyCmsSettings(object):
         :param comment_added_hook: Set to a function which takes a single parameter to add a comment hook.
                                    Whenever a comment is added to the site this function will be called and the
                                    newly added comment will be passed in
+        :param comment_reply_hook: A function which takes a single parameter to add a reply hook. Whenever
+                                   a comment is approved, and that comment is replying to another comment, this
+                                   function will be called with the newly added comment
         """
         self.home_link_text = home_link_text
         self.home_link_endpoint = home_link_endpoint
@@ -114,6 +118,7 @@ class EasyCmsSettings(object):
         self.view_post_url_function = view_post_url_function
         self.comments_enabled = comments_enabled
         self.comment_added_hook = comment_added_hook
+        self.comment_reply_hook = comment_reply_hook
         
         if self._ckeditor_config is None:
             self._ckeditor_config = CkeditorConfig()

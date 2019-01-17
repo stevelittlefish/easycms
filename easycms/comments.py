@@ -173,17 +173,11 @@ def create_and_process_comment_form(post, session=None, action='', form_type=eas
             comment_added_hook = settings.comment_added_hook
             if comment_added_hook:
                 comment_added_hook(comment)
-            # TODO
 
-            # # If the comment is an admin and it is a reply, send an email to the user whose comment is being replied to
-            # if comment.approved and comment.reply_to_id:
-            #     email = comment.reply_to.get_email_address()
-            #     name = comment.reply_to.get_author_name()
-            #     sendemail.send_blog_comment_reply_notification_email(email, name, comment)
-
-            # if not comment.approved:
-            #     # Send the notification emails
-            #     sendemail.send_blog_comment_notification_email(blog_notification_emails, comment)
+            # If the comment is an admin and it is a reply, send an email to the user whose comment is being replied to
+            comment_reply_hook = settings.comment_reply_hook
+            if comment_reply_hook and comment.approved and comment.reply_to_id:
+                comment_reply_hook(comment)
 
             flash('Comment Added!', 'success')
             form.clear()

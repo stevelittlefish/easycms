@@ -882,13 +882,10 @@ def view_comments(deleted='False', pending='True', approved='True'):
             raise Exception('I don\'t know what you want me to do!')
 
         db.session.commit()
-
-        if send_reply_email:
-            # email = comment.reply_to.get_email_address()
-            # name = comment.reply_to.get_author_name()
-            # TODO: send email (hook)
-            log.error('TODO: send email')
-            # sendemail.send_blog_comment_reply_notification_email(email, name, comment)
+        
+        comment_reply_hook = get_settings().comment_reply_hook
+        if comment_reply_hook and send_reply_email:
+            comment_reply_hook(comment)
 
     return render_template('easycms/view_comments.html', pager=pager, show_approved=show_approved,
                            show_pending=show_pending, show_deleted=show_deleted)

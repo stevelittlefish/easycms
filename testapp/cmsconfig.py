@@ -16,6 +16,7 @@ import permissions
 from permissions import Permissions
 from constants import pagecodes
 import sendemail
+import models
 
 
 __author__ = 'Stephen Brown (Little Fish Solutions LTD)'
@@ -73,19 +74,28 @@ class CmsAccessControl(easycms.accesscontrol.AccessControlConfig):
 
 
 def comment_added_hook(comment):
-    print('~~~~~~~~~~~~~~~~~~~~~~~~~')
-    print(comment.approved)
-    # If the comment is an admin and it is a reply, send an email to the user whose comment is being replied to
-    # TODO: move this into a separate hook
-    if comment.approved and comment.reply_to_id:
-        # email = comment.reply_to.get_email_address()
-        # name = comment.reply_to.get_author_name()
-        # sendemail.send_blog_comment_reply_notification_email(email, name, comment)
-        log.info('TODO: replies')
-
     if not comment.approved:
         # Send the notification emails
         sendemail.send_blog_comment_notification_email('admin@blog.com', comment)
+
+
+def comment_reply_hook(comment):
+    if comment.reply_to.author_email:
+        email = comment.reply_to.author_email
+    else:
+        cms_user = comment.reply_to.author_user
+        user = models.User.query.filter(
+            models.User.cms_user_id == cms_user.id
+        ).one_or_none()
+
+        if not user:
+            log.error('No user for author to comment: {}'.format(cms_user.name))
+            return
+        
+        email = user.email_address
+
+    name = comment.reply_to.get_author_name()
+    sendemail.send_blog_comment_reply_notification_email(email, name, comment)
 
 
 ckeditor_config = easyforms.CkeditorConfig(
@@ -117,7 +127,8 @@ settings = easycms.settings.EasyCmsSettings(
     post_main_image_required=True,
     view_post_url_function=lambda post: url_for('main.view_blog_post', post_code=post.code, _external=True),
     comments_enabled=True,
-    comment_added_hook=comment_added_hook
+    comment_added_hook=comment_added_hook,
+    comment_reply_hook=comment_reply_hook
 )
 
 page_defs = [
