@@ -47,6 +47,9 @@ class AccessControlConfig(object):
 
     def can_edit_category(self):
         return True
+    
+    def can_post_comments_as_admin(self):
+        return self.can_moderate_comments() or self.can_edit_post()
 
     def can_moderate_comments(self):
         return True

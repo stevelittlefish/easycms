@@ -13,11 +13,12 @@ from sqlalchemy.sql import func
 from titlecase import titlecase
 from bs4 import BeautifulSoup
 from unidecode import unidecode
-from flask import url_for
+from flask import url_for, request
 
 from .settings import get_settings
 import easycms
 from easycms import cmsutil
+from easycms import constants
 
 __author__ = 'Stephen Brown (Little Fish Solutions LTD)'
 
@@ -362,6 +363,15 @@ def init(table_prefix, metadata, bind):
                 out.append(img['src'])
             return out
         
+        def can_see_comments(self):
+            """
+            :return: True if the current logged in user can see any of the comments on this post
+            """
+            for comment in self.comments:
+                if comment.can_see():
+                    return True
+            return False
+        
         @property
         def editor_url(self):
             return url_for('easycms_editor.edit_post', post_id=self.id)
@@ -429,7 +439,49 @@ def init(table_prefix, metadata, bind):
         editor = relationship('CmsAuthor', foreign_keys=[edited_by_id], uselist=False)
         editor_user = relationship('CmsUser', foreign_keys=[edited_by_user_id], uselist=False)
         reply_to = relationship('CmsComment', uselist=False, remote_side=[id], backref=backref('replies', order_by=timestamp))
-    
+
+        def __init__(self, post, content, user=None, author=None, author_name=None, author_email=None,
+                     author_ip=None, user_agent=None, reply_to=None):
+            self.post = post
+            self.content = content
+            self.author_user = user
+            self.author = author
+            self.author_name = author_name
+            self.author_email = author_email
+            self.author_ip = author_ip
+            self.user_agent = user_agent
+            self.reply_to = reply_to
+
+            self.timestamp = datetime.datetime.utcnow()
+            self.approved = False
+            self.deleted = False
+            self.original_content = None
+            self.edit_timestamp = None
+            self.editor = None
+            self.editor_user = None
+
+        def can_see(self):
+            """
+            :return: True if the current logged in user can see this comment
+            """
+            from . import accesscontrol
+            ac = accesscontrol.get_access_control()
+            
+            if ac.can_moderate_comments():
+                return True
+
+            if self.deleted:
+                return False
+
+            if self.approved:
+                return True
+            
+            if request and request.cookies and \
+                    request.cookies.get(constants.COMMENT_EMAIL_COOKIE_NAME) == self.author_email:
+                return True
+
+            return False
+        
     class CmsVersionHistory(Model):
         """
         Used to store the version in the database so that we can automatically update the tables

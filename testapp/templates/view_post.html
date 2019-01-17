@@ -8,6 +8,65 @@
 {% endblock outer_banner %}
 
 
+{% macro draw_comment(comment) %}
+	{% if comment.can_see() %}
+		<div class="comment {% if comment.deleted %}deleted{% elif not comment.approved %}pending{% endif %} {% if comment.reply_to %}comment-reply{% endif %}">
+			<div class="author">
+				{% if comment.author %}
+					<strong>{{ comment.author.full_name }}</strong>
+{#				{% elif comment.author_url %}#}
+{#					<a href="{{ comment.author_url }}">#}
+{#						<strong>{{ comment.author_name | safe }}</strong>#}
+{#					</a>#}
+				{% else %}
+					<strong>{{ comment.author_name | safe }}</strong>
+				{% endif %}
+				on {{ comment.timestamp | format_datetime_long }}
+				{% if comment.deleted %}(deleted){% elif not comment.approved %}(pending){% endif %}
+			</div>
+			<div class="comment-content clearfix">
+				<div class="info">
+					{% if comment.reply_to %}
+						{% if comment.reply_to.author %}
+							Reply to {{ comment.reply_to.author.full_name }}
+						{% else %}
+							Reply to {{ comment.reply_to.author_name }}
+						{% endif %}
+					{% endif %}
+				</div>
+				{{ comment.content | safe }}
+				{% if comment.original_content %}
+					<p class="info">Post edited by {{ comment.editor.full_name }} on {{ comment.edit_timestamp | format_date }}</p>
+				{% endif %}
+				
+				<div class="alert alert-danger">
+					TODO
+				</div>
+				{#
+				{% if can_manage_comments %}
+					<a href="{{ url_for('blog.edit_comment', comment_id=comment.id) }}" class="btn btn-default btn-xs edit-button">
+						Edit
+					</a>
+				{% endif %}
+				#}
+
+				{% if comment.approved and not comment.deleted%}
+					<a href="{{ url_for('blog.view_post', nice_name=post.nice_name, reply_to=comment.id) }}" class="btn btn-default btn-xs reply-button"
+					        data-author="{{ comment.author.full_name if comment.author else comment.author_name }}"
+							data-comment-id="{{ comment.id }}">
+						Reply
+					</a>
+				{% endif %}
+			</div>
+		</div>
+	{% endif %}
+
+	{% for reply in comment.replies %}
+		{{ draw_comment(reply) }}
+	{% endfor %}
+{% endmacro %}
+
+
 {% block content %}
 	<div class="blog-post">
 		<a href="{{ url_for('main.view_blog_post', post_code=post.code) }}">
@@ -38,6 +97,21 @@
 		{% endif %}
 
 		{{ post.content | safe }}
+
+		{% if post.can_see_comments() %}
+			<div class="comments" id="comments-{{ post.id }}">
+				<h4>Comments</h4>
+				{% for comment in post.comments %}
+					{% if not comment.reply_to %}
+						{{ draw_comment(comment) }}
+					{% endif %}
+				{% endfor %}
+			</div>
+		{% endif %}
+
+		<hr>
+
+		{{ comments_form.render() }}
 	</div>
 	
 	<div class="blog-snippet-list">

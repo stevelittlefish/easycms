@@ -76,6 +76,7 @@ def init_templating(app):
     app.jinja_env.filters['format_datetime'] = timetool.format_datetime
     app.jinja_env.filters['format_date'] = timetool.format_date
     app.jinja_env.filters['format_date_long'] = timetool.format_date_long
+    app.jinja_env.filters['format_datetime_long'] = timetool.format_datetime_long
 
     # Don't allow output of undefined variables in jinja templates
     app.jinja_env.undefined = jinja2.StrictUndefined
@@ -94,6 +95,9 @@ def init_app_behaviours(app):
 
     @app.errorhandler(HTTPException)
     def handle_http_exception(e):
+        if not hasattr(e, 'code'):
+            return catch_all(e)
+
         if e.code >= 300 and e.code < 400:
             return redirect(e.new_url, e.code)
 
@@ -126,7 +130,7 @@ def init_cms(app):
     log.info('Initialising CMS')
     # all_post_types = ['post', 'event']
     update_db = False
-    update_db = True
+    # update_db = True
     easycms.init(app, db.engine, metadata=metadata,
                  access_control_config=cmsconfig.CmsAccessControl(),
                  settings=cmsconfig.settings, all_post_types=posttypes.ALL_POST_TYPES,
