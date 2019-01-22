@@ -115,7 +115,6 @@ def view_blog_post(post_code):
         else:
             reply_to_id = None
 
-    # comments_form = easycms.comments.create_and_process_comment_form(post, session=db.session)
     comments_form = easycms.comments.create_and_process_comment_form(post, action='#leave-a-comment')
 
     return render_template('view_post.html', post=post, prev_post=prev_post,

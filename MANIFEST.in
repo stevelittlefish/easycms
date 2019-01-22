@@ -4,4 +4,4 @@ include LICENSE.txt
 # Templates, static files etc.
 recursive-include easycms/templates *
 recursive-include easycms/static *
-
+recursive-include easycms/customfields/templates *

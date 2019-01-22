@@ -6,7 +6,7 @@ if sys.version_info.major < 3:
 
 setup(
     name='easycms',
-    packages=['easycms', 'easycms.templates', 'easycms.static'],
+    packages=['easycms', 'easycms.templates', 'easycms.static', 'easycms.customfields'],
     include_package_data=True,
     version='0.0.2',
     description='CMS and Blogging Sysetm for Flask',
@@ -30,7 +30,7 @@ setup(
         'Flask>=1.0.2',
         'Pillow>=5.2.0',
         'requests>=2.19.1',
-        'easyforms>=0.1.7',
+        'easyforms>=0.1.8',
         'littlefish>=0.0.25',
         'titlecase>=0.12.0',
         'beautifulsoup4>=4.6.0',

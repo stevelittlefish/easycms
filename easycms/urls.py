@@ -17,3 +17,7 @@ def create_new_post(post_type):
 
 def view_categories():
     return url_for('easycms_editor.view_categories')
+
+
+def view_comments(deleted=None, approved=None, pending=None):
+    return url_for('easycms_editor.view_comments', deleted=deleted, approved=approved, pending=pending)

@@ -441,7 +441,7 @@ def init(table_prefix, metadata, bind):
         deleted = Column(Boolean, nullable=False)
         reply_to_id = Column(BigInteger, ForeignKey(prefix + 'comment.id'), nullable=True)
 
-        post = relationship('CmsPost', uselist=False, backref=backref('comments'))
+        post = relationship('CmsPost', uselist=False, backref=backref('comments', order_by=timestamp))
         author = relationship('CmsAuthor', foreign_keys=[author_id], uselist=False)
         author_user = relationship('CmsUser', foreign_keys=[author_user_id], uselist=False)
         editor = relationship('CmsAuthor', foreign_keys=[edited_by_id], uselist=False)
@@ -492,6 +492,10 @@ def init(table_prefix, metadata, bind):
         
         def get_author_name(self):
             return self.author.name if self.author else self.author_name
+        
+        @property
+        def edit_url(self):
+            return url_for('easycms_editor.edit_comment', comment_id=self.id)
         
     class CmsVersionHistory(Model):
         """

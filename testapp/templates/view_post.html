@@ -70,7 +70,7 @@
 				{% endif %}
 				
 				{% if can_manage_comments %}
-					<a href="{{ url_for('easycms_editor.edit_comment', comment_id=comment.id) }}" class="btn btn-secondary btn-xs edit-button">
+					<a href="{{ comment.edit_url }}" class="btn btn-secondary btn-xs edit-button">
 						Edit
 					</a>
 				{% endif %}
@@ -142,7 +142,7 @@
 				<h3>Reply to Comment by <span id="comment-author"></span></h3>
 				<a class="btn btn-xs btn-secondary cancel-reply" href="javascript: void(0);">Cancel Reply</a>
 			</div>
-			<div class="container flashed-alerts">
+			<div class="flashed-alerts">
 				{% with messages = get_flashed_messages(with_categories=true) %}
 					{% if messages %}
 					<br><br>
