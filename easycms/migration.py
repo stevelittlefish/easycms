@@ -319,6 +319,8 @@ def migrate_0_1_to_0_2():
 
     log.info('Recreating Comment table')
     
+    # Commit to avoid postgres locks stopping the table from being dropped
+    db.session.commit()
     already_created = does_column_exist(models.CmsComment.__tablename__, 'edited_by_user_id')
     if already_created:
         log.info('Comments table already up to date - skipping')

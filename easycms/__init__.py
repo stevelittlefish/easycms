@@ -43,8 +43,9 @@ def init(app, engine_or_connection, metadata=None, all_post_types=['post'], tabl
     global bind, session, post_types
 
     log.info('Initialising EasyCMS v{}'.format(VERSION))
-
-    log.info('Update DB mode enabled')
+    
+    if update_db:
+        log.info('Update DB mode enabled')
 
     bind = engine_or_connection
     
@@ -284,6 +285,25 @@ def get_special_tags(post_type=None, tag_type=None, external_code=None, session=
         query = query.filter(models.CmsTag.external_code == external_code)
 
     return query.all()
+
+
+def get_comment_query(approved_only=True, show_deleted=False, session=None):
+    if session is None:
+        session = models.session
+    
+    query = session.query(
+        models.CmsComment
+    ).order_by(
+        models.CmsComment.timestamp
+    )
+
+    if approved_only:
+        query = query.filter(models.CmsComment.approved == True)
+
+    if not show_deleted:
+        query = query.filter(models.CmsComment.deleted == False)
+
+    return query
 
 
 def get_comment_by_id(comment_id, session=None):

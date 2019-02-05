@@ -86,7 +86,7 @@ def generate_rss_xml(website_name=None, website_description=None):
 
         if post.main_image_url:
             rss_content = '<img src="{}"><br><br>{}'.format(post.main_image_url, rss_content)
-
+        
         channel.append(
             E.item(
                 E.title(post.title),
