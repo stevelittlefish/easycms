@@ -917,3 +917,78 @@ def edit_comment(comment_id):
 
     return render_template('easycms/edit_comment.html', form=form, comment=comment)
 
+
+@editor.route('/authors')
+@accesscontrol.can_view_editor
+def view_authors():
+    authors = db.session.query(
+        models.CmsAuthor
+    ).order_by(
+        models.CmsAuthor.name
+    ).all()
+
+    return render_template('easycms/view_authors.html', authors=authors)
+
+
+@editor.route('/authors/new', methods=['GET', 'POST'])
+@editor.route('/authors/<string:author_code>/edit', methods=['GET', 'POST'])
+@accesscontrol.can_manage_authors
+def edit_author(author_code=None):
+    author = None
+    if author_code:
+        author = db.session.query(
+            models.CmsAuthor
+        ).filter(
+            models.CmsAuthor.code == author_code
+        ).one_or_none()
+
+        if not author:
+            abort(404)
+    
+    fields = [
+        easyforms.TextField('name', required=True, value=author.name if author else None)
+    ]
+    
+    if author:
+        fields.append(easyforms.CodeField('code', required=True, value=author.code,
+                                          help_text='Note: changing this field may cause some URLs to change'))
+
+    form = Form(fields, form_type=easyforms.VERTICAL)
+
+    if form.ready:
+        try:
+            if author:
+                edited_author = author
+                edited_author.name = form['name']
+                edited_author.code = form['code']
+                db.session.commit()
+
+                flash('Author \'{}\' updated'.format(edited_author.name), 'success')
+            else:
+                edited_author = models.CmsAuthor(form['name'])
+                db.session.add(edited_author)
+                db.session.commit()
+
+                flash('Author \'{}\' added to the system'.format(edited_author.name), 'success')
+            
+            return redirect(url_for('.view_authors'))
+
+        except sqlalchemy.exc.IntegrityError as e:
+            db.session.rollback()
+            
+            if 'cms_author_name_key' in str(e):
+                error_message = 'Another author already exists with this name'
+                form.set_error('name', error_message)
+            elif 'cms_author_code_key' in str(e):
+                if author:
+                    error_message = 'Another author already exists with this code'
+                    form.set_error('code', error_message)
+                else:
+                    error_message = 'The name you have chosen is too similar to another author.  (Specifically, ' \
+                                    'the auto-generated code already exists on another author.)  Please either ' \
+                                    'choose a different name or change the code on the conflicting author'
+                    form.set_error('name', error_message)
+            else:
+                raise e
+
+    return render_template('easycms/edit_author.html', author=author, form=form)

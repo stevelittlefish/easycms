@@ -14,23 +14,28 @@
 				{% if pages_enabled %}
 					<li>
 						<a href="{{ url_for('.view_pages') }}">
-							View / Edit Pages
+							Pages
 						</a>
 					</li>
 				{% endif %}
 				<li>
 					<a href="{{ url_for('.view_posts') }}">
-						View / Edit Posts
+						Posts
 					</a>
 				</li>
 				<li>
 					<a href="{{ url_for('.view_categories') }}">
-						View / Edit Categories
+						Categories
 					</a>
 				</li>
 				<li>
 					<a href="{{ url_for('.view_comments') }}">
-						View / Moderate Comments
+						Comments
+					</a>
+				</li>
+				<li>
+					<a href="{{ url_for('.view_authors') }}">
+						Authors
 					</a>
 				</li>
 				<li>

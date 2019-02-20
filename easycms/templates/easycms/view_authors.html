@@ -1,0 +1,55 @@
+{% extends 'easycms/base.html' %}
+
+{% block easycms_title %}Authors{% endblock easycms_title %}
+
+{% block easycms_content %}
+	<div class="button-list">
+		<a class="btn btn-secondary" href="{{ url_for('.index') }}">
+			<span class="oi" data-glyph="arrow-left"></span> Content Editor Home
+		</a>
+		{% if access_control.can_manage_authors() %}
+			<a class="btn btn-primary" href="{{ url_for('.edit_author') }}">
+				<span class="oi" data-glyph="plus"></span> Create Author
+			</a>
+		{% endif %}
+	</div>
+
+	<table class="table" style="width: auto;">
+		<thead>
+			<tr>
+				<th>Name</th>
+				<th>Code</th>
+				<th></th>
+				<th></th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for author in authors %}
+				<tr>
+					<td>
+						{{ author.name }}
+					</td>
+					<td>
+						{{ author.code }}
+					</td>
+					<td>
+						<a class="btn btn-xs btn-secondary" href="{{ url_for('.edit_author', author_code=author.code) }}">
+							<span class="oi" data-glyph="pencil"></span>
+							edit
+						</a>
+					</td>
+					{#
+					<td>
+						<a class="btn btn-xs btn-danger" href="{{ url_for('.delete_category', category_id=category.id) }}">
+							<span class="oi" data-glyph="circle-x"></span>
+							delete
+						</a>
+					</td>
+					#}
+				</tr>
+			{% else %}
+				<tr><td class="info">(no authors)</td></tr>
+			{% endfor %}
+		</tbody>
+	</table>
+{% endblock easycms_content %}

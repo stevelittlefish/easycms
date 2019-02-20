@@ -1,0 +1,16 @@
+{% extends 'easycms/base.html' %}
+
+{% block easycms_title %}{% if author %}Edit Author: {{ author.name }}{% else %}New Author{% endif %}{% endblock easycms_title %}
+
+{% block easycms_content %}
+	<div class="not-too-big">
+		<p>
+			<a href="{{ url_for('.view_authors') }}">
+				<span class="oi" data-glyph="arrow-left"></span>
+				Back to Authors
+			</a>
+		</p>
+
+		{{ form.render() }}
+	</div>
+{% endblock easycms_content %}

@@ -57,6 +57,9 @@ class AccessControlConfig(object):
     def can_access_filemanager(self):
         return True
 
+    def can_manage_authors(self):
+        return True
+
 
 def init(access_control):
     global _access_control
@@ -163,6 +166,14 @@ def can_moderate_comments(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         return _access_control_handler('can_moderate_comments', f, args, kwargs)
+
+    return decorated
+
+
+def can_manage_authors(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        return _access_control_handler('can_manage_authors', f, args, kwargs)
 
     return decorated
 
