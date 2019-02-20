@@ -316,3 +316,14 @@ def get_comment_by_id(comment_id, session=None):
         models.CmsComment.id == comment_id
     ).one_or_none()
 
+
+def get_author_by_code(author_code, session=None):
+    if session is None:
+        session = models.session
+
+    return session.query(
+        models.CmsAuthor
+    ).filter(
+        models.CmsAuthor.code == author_code
+    ).one_or_none()
+
