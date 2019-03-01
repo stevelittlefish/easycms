@@ -41,31 +41,29 @@ def process_and_save_snippet_image(image_url, always_local=False):
     :return: The image url
     """
     settings = get_settings()
-    fm_path_prefix = '{}/userfiles'.format(settings.filemanager_url_prefix)
     url_parts = urllib.parse.urlparse(image_url)
     extension = url_parts.path.split('.')[-1]
 
     assert extension
-
-    if always_local or url_parts.netloc.encode('UTF-8') == request.host:
-        raise Exception('Not implemented - local files!')
-
-        # This is a url on our server!
-        if url_parts.path.startswith(fm_path_prefix):
-            content_path = url_parts.path[14:]
-            log.info('File Manager Content: %s' % content_path)
-            full_path = filemanager.get_file_path(content_path)
-            log.info('Loading from disk: %s' % full_path)
-            image = PIL.Image.open(full_path)
-        else:
-            raise Exception('Unhandled self hosted URL: %s' % image_url)
+    
+    # TODO: always_local is a legacy feature that I don't understand!  I think it was used to load images
+    # from the filesystem instead of via http but I don't remember exactly what it was used for!
+    if always_local or url_parts.netloc.encode('UTF-8') == request.host \
+            or not url_parts.scheme or not url_parts.netloc:
+        scheme = url_parts.scheme if url_parts.scheme else request.scheme
+        host = url_parts.host if url_parts.netloc else request.host
+        path = url_parts.path if url_parts.path else request.path
+        query = url_parts.query
+        fragment = url_parts.query
+        full_image_url = urllib.parse.urlunsplit((scheme, host, path, query, fragment))
     else:
         # This is the full url
         full_image_url = image_url
-        log.debug('Loading image via %s: %s' % (url_parts.scheme, full_image_url))
-        r = requests.get(full_image_url)
-        stream = io.BytesIO(r.content)
-        image = PIL.Image.open(stream)
+
+    log.debug('Loading image via %s: %s' % (url_parts.scheme, full_image_url))
+    r = requests.get(full_image_url)
+    stream = io.BytesIO(r.content)
+    image = PIL.Image.open(stream)
 
     assert image
 

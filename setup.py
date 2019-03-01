@@ -8,12 +8,12 @@ setup(
     name='easycms',
     packages=['easycms', 'easycms.templates', 'easycms.static', 'easycms.customfields'],
     include_package_data=True,
-    version='0.2.2',
+    version='0.2.3',
     description='CMS and Blogging Sysetm for Flask',
     author='Stephen Brown (Little Fish Solutions LTD)',
     author_email='opensource@littlefish.solutions',
     url='https://github.com/stevelittlefish/easycms',
-    download_url='https://github.com/stevelittlefish/easycms/archive/v0.2.2.tar.gz',
+    download_url='https://github.com/stevelittlefish/easycms/archive/v0.2.3.tar.gz',
     keywords=['flask', 'jinja2', 'easy', 'cms', 'blog'],
     license='LGPLv3',
     classifiers=[
@@ -25,7 +25,7 @@ setup(
         'Topic :: Software Development :: Libraries'
     ],
     install_requires=[
-        'flaskfilemanager>=0.0.5',
+        'flaskfilemanager>=0.0.6',
         'SQLAlchemy>=1.2.10',
         'Flask>=1.0.2',
         'Pillow>=5.2.0',
