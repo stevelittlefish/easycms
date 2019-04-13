@@ -234,6 +234,22 @@ def init(table_prefix, metadata, bind):
             self.published_by = published_by
             self.title = self.page.title
             self.content = self.page.content
+
+        @property
+        def disabled(self):
+            return self.page.disabled
+        
+        @property
+        def code(self):
+            return self.page.code
+
+        @property
+        def created(self):
+            return self.page.created
+
+        @property
+        def author(self):
+            return self.page.author
     
     class CmsPublishedPageRevision(Model):
         __tablename__ = prefix + 'published_page_revision'

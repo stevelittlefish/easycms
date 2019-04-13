@@ -111,11 +111,21 @@ def view_pages():
 @editor.route('/pages/<int:page_id>')
 @accesscontrol.can_view_editor
 def view_page(page_id):
+    settings = get_settings()
+
     page = db.session.query(models.CmsPage).filter(models.CmsPage.id == page_id).one_or_none()
     if not page:
         abort(404)
+    
+    published = False
 
-    return render_template('easycms/view_page.html', page=page)
+    if settings.page_publishing_enabled and request.args.get('published') == 'True':
+        page = page.published_page
+        published = True
+        if not page:
+            return error_page('There is no published content for this page')
+
+    return render_template('easycms/view_page.html', page=page, published=published)
 
 
 @editor.route('/pages/<int:page_id>/edit', methods=['GET', 'POST'])

@@ -14,7 +14,26 @@
 				<span class="oi" data-glyph="pencil"></span> Edit Page
 			</a>
 		{% endif %}
+		{% if settings.page_publishing_enabled and not page.published and access_control.can_publish_page() %}
+			<a class="btn btn-success" href="{{ url_for('.publish_page', page_id=page.id) }}">
+				<span class="oi" data-glyph="share"></span> Publish Page
+			</a>
+		{% endif %}
 	</div>
+	
+	{% if settings.page_publishing_enabled and not page.published %}
+		<div class="alert alert-info">
+			This page contains unpublished content.  To view the published version click here:
+			<a href="?published=True">View Published Content</a>
+		</div>
+	{% endif %}
+
+	{% if published %}
+		<div class="alert alert-info">
+			You are viewing the published version of this page.  To view the latest unpublished version click
+			here: <a href="{{ request.path }}">View Un-Published Content</a>
+		</div>
+	{% endif %}
 
 	<div class="preview">
 		<h1>{{ page.title }}</h1>
