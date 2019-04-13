@@ -128,7 +128,8 @@ settings = easycms.settings.EasyCmsSettings(
     view_post_url_function=lambda post: url_for('main.view_blog_post', post_code=post.code, _external=True),
     comments_enabled=True,
     comment_added_hook=comment_added_hook,
-    comment_reply_hook=comment_reply_hook
+    comment_reply_hook=comment_reply_hook,
+    page_publishing_enabled=True
 )
 
 page_defs = [

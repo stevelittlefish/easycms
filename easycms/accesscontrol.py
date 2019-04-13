@@ -25,6 +25,9 @@ class AccessControlConfig(object):
     def can_edit_page(self):
         return True
 
+    def can_publish_page(self):
+        return True
+
     def can_edit_post(self):
         return True
 
@@ -102,6 +105,14 @@ def can_edit_page(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         return _access_control_handler('can_edit_page', f, args, kwargs)
+
+    return decorated
+
+
+def can_publish_page(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        return _access_control_handler('can_publish_page', f, args, kwargs)
 
     return decorated
 

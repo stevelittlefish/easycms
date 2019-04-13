@@ -48,6 +48,12 @@
 				{% endif %}
 			</td>
 		</tr>
+		{% if settings.page_publishing_enabled %}
+			<tr>
+				<th>Published</th>
+				<td>{{ macros.format_result(page.published) }}</td>
+			</tr>
+		{% endif %}
 	</table>
 {% endblock %}
 

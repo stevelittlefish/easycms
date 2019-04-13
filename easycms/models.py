@@ -44,7 +44,8 @@ db = Db()
 
 def init(table_prefix, metadata, bind):
     global Model, CmsUser, CmsCategory, CmsTag, CmsPost, CmsPostRevision, CmsComment,\
-        CmsPage, CmsPageRevision, CmsVersionHistory, CmsAuthor, Session, session, db
+        CmsPage, CmsPageRevision, CmsVersionHistory, CmsAuthor, Session, session, db,\
+        CmsPublishedPage, CmsPublishedPageRevision
 
     Model = declarative_base(bind=bind, metadata=metadata)
     Session = sessionmaker(bind=bind)
@@ -170,6 +171,8 @@ def init(table_prefix, metadata, bind):
         content = Column(String, nullable=False)
         disabled = Column(Boolean, nullable=False)
         author_id = Column(BigInteger, ForeignKey(prefix + 'author.id'), nullable=True)
+        # This is updated to True when we publish the page, and back to False when the page is editted
+        published = Column(Boolean, nullable=False)
 
         author = relationship('CmsAuthor', uselist=False, backref=backref('pages'))
 
@@ -180,6 +183,7 @@ def init(table_prefix, metadata, bind):
             self.content = content
             self.disabled = False
             self.author = None
+            self.published = False
     
     class CmsPageRevision(Model):
         __tablename__ = prefix + 'page_revision'
@@ -224,10 +228,10 @@ def init(table_prefix, metadata, bind):
 
         def __init__(self, page):
             self.page = page
-            self.apply_page_content()
 
-        def apply_page_content(self):
+        def apply_page_content(self, published_by):
             self.published = datetime.datetime.utcnow()
+            self.published_by = published_by
             self.title = self.page.title
             self.content = self.page.content
     
@@ -244,10 +248,10 @@ def init(table_prefix, metadata, bind):
         published_page = relationship('CmsPublishedPage', uselist=False, backref=backref('revisions', order_by=timestamp.desc()))
         user = relationship('CmsUser', uselist=False)
 
-        def __init__(self, page, user, revision_notes=None):
+        def __init__(self, published_page, user, revision_notes=None):
             self.timestamp = datetime.datetime.utcnow()
-            self.page = page
-            self.content = page.content
+            self.published_page = published_page
+            self.content = published_page.content
             self.user = user
             self.revision_notes = revision_notes
 

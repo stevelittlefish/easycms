@@ -173,6 +173,10 @@ div.button-list > a.btn {
 	margin: 10px 0 0;
 }
 
+.being-replaced {
+	opacity: 0.6;
+}
+
 .blog-snippet {
 	background-color: white;
 	margin: 50px 8px 20px;

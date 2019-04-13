@@ -53,7 +53,9 @@ class EasyCmsSettings(object):
             view_post_url_function=None,
             comments_enabled=False,
             comment_added_hook=None,
-            comment_reply_hook=None
+            comment_reply_hook=None,
+            page_publishing_enabled=False,
+            page_needs_publishing_hook=None
     ):
         """
         :param home_link_text: Text for home link in editor
@@ -90,6 +92,14 @@ class EasyCmsSettings(object):
         :param comment_reply_hook: A function which takes a single parameter to add a reply hook. Whenever
                                    a comment is approved, and that comment is replying to another comment, this
                                    function will be called with the newly added comment
+        :param page_publishing_enabled: If set to true then the page publishing UI will be enabled.  If this is
+                                        the case you should display CmsPublishedPage objects on your site as
+                                        CmsPage objects will contain the unpublished version.  If this is false
+                                        then you should just use the CmsPage objects instead
+        page_needs_publishing_hook: Set to a function that takes a page as its only argument.  This will be
+                                    called every time a page is saved when page publishing is enabled and can
+                                    be used to send an email notifying someone that the page needs to be
+                                    published if you want to implement an approval system
         """
         self.home_link_text = home_link_text
         self.home_link_endpoint = home_link_endpoint
@@ -119,6 +129,8 @@ class EasyCmsSettings(object):
         self.comments_enabled = comments_enabled
         self.comment_added_hook = comment_added_hook
         self.comment_reply_hook = comment_reply_hook
+        self.page_publishing_enabled = page_publishing_enabled
+        self.page_needs_publishing_hook = page_needs_publishing_hook
         
         if self._ckeditor_config is None:
             self._ckeditor_config = CkeditorConfig()

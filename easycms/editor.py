@@ -151,6 +151,7 @@ def edit_page(page_id=None):
 
         page.content = content
         page.author = form['author']
+        page.published = False
 
         # Always save a history record
         revision = models.CmsPageRevision(page, user)
@@ -218,6 +219,54 @@ def view_page_history(page_id, history_id=None):
         return redirect(url_for('.view_page', page_id=page.id))
 
     return render_template('easycms/view_page_history.html', page=page, history=history)
+
+
+@editor.route('/pages/<int:page_id>/publish', methods=['GET', 'POST'])
+@accesscontrol.can_publish_page
+def publish_page(page_id):
+    page = db.session.query(models.CmsPage).filter(models.CmsPage.id == page_id).one_or_none()
+    if not page:
+        abort(404)
+
+    published_page = page.published_page
+
+    all_authors = db.session.query(
+        models.CmsAuthor
+    ).order_by(
+        models.CmsAuthor.name
+    ).all()
+
+    user = accesscontrol.get_access_control().get_logged_in_cms_user()
+
+    form = Form([
+        easyforms.HiddenField('last-revision-id', page.revisions[-1].id),
+        easyforms.ObjectListSelectField('author', all_authors, value=page.author, empty_option=True,
+                                        empty_option_name='(no author)'),
+        easyforms.ObjectListSelectField('published-by', all_authors, value=user.author),
+    ], form_type=easyforms.VERTICAL, submit_text='Publish')
+
+    if form.ready:
+        if form['last-revision-id'] != str(page.revisions[-1].id):
+            return error_page('The contents of the page have changed since you loaded them. Please reload the '
+                              'page and try again',
+                              'Cannot publish post')
+
+        # Publish the page!
+        if not published_page:
+            published_page = models.CmsPublishedPage(page)
+
+        published_page.apply_page_content(form['published-by'])
+        page.published = True
+        page.author = form['author']
+
+        published_page_revision = models.CmsPublishedPageRevision(published_page, user)
+        db.session.add(published_page_revision)
+
+        db.session.commit()
+        flash('Page successfully published', 'success')
+        return redirect(url_for('.view_pages'))
+
+    return render_template('easycms/publish_page.html', page=page, published_page=published_page, form=form)
 
 
 @editor.route('/posts')

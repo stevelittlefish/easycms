@@ -354,6 +354,21 @@ def migrate_0_2_to_0_3():
     except ColumnAlreadyExists:
         log.info('Column already exists - skipping')
 
+    # Add published field to CmsPage table
+    log.info('> Creating the new published column on page table')
+    
+    try:
+        add_column('ALTER TABLE {} ADD COLUMN published BOOLEAN DEFAULT FALSE NOT NULL'.format(
+            models.CmsPage.__tablename__
+        ))
+    except ColumnAlreadyExists:
+        log.info('Column already exists - skipping')
+
+    log.info('Dropping default on published column')
+    alter_column('ALTER TABLE {} ALTER COLUMN published DROP DEFAULT'.format(
+        models.CmsPage.__tablename__
+    ))
+
     # Update the version
     log.info('Updating DB Version to 0.3.X')
     current_db_version = models.CmsVersionHistory(0, 3)

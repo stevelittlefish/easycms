@@ -15,6 +15,9 @@
 				<th>Code</th>
 				<th>Title</th>
 				<th>Created</th>
+				{% if settings.page_publishing_enabled %}
+					<th>Published</th>
+				{% endif %}
 				<th></th>
 			</tr>
 		</tbody>
@@ -28,14 +31,25 @@
 						</a>
 					</td>
 					<td>{{ page.created | easycms_format_datetime_seconds }}</td>
-					{% if access_control.can_edit_page() %}
+					{% if settings.page_publishing_enabled %}
 						<td>
-							<a href="{{ url_for('.edit_page', page_id=page.id) }}" class="btn btn-xs btn-secondary">
-								<span class="oi" data-glyph="pencil"></span>
-								edit
-							</a>
+							{{ macros.format_result(page.published) }}
+							{% if access_control.can_publish_page() and not page.published %}
+								<a href="{{ url_for('.publish_page', page_id=page.id) }}" class="btn btn-xs btn-success">
+									<span class="oi" data-glyph="share"></span>
+									Publish
+								</a>
+							{% endif %}
 						</td>
 					{% endif %}
+					<td>
+						{% if access_control.can_edit_page() %}
+							<a href="{{ url_for('.edit_page', page_id=page.id) }}" class="btn btn-xs btn-secondary">
+								<span class="oi" data-glyph="pencil"></span>
+								Edit
+							</a>
+						{% endif %}
+					</td>
 				</tr>
 			{% endfor %}
 		</tbody>

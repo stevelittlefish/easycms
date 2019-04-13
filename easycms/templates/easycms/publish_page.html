@@ -1,0 +1,65 @@
+{% extends 'easycms/base.html' %}
+
+{% block easycms_title %}Publish Page: {{ page.title }}{% endblock easycms_title %}
+
+{% block easycms_content %}
+	<div class="button-list">
+		<a class="btn btn-secondary" href="{{ url_for('.view_pages') }}">
+			<span class="oi" data-glyph="arrow-left"></span> View All Pages
+		</a>
+		{% if page %}
+			<a class="btn btn-secondary" href="{{ url_for('.view_page', page_id=page.id) }}">
+				<span class="oi" data-glyph="arrow-left"></span> Back to Page
+			</a>
+		{% endif %}
+	</div>
+	
+	<p>
+		If you click "publish" at the bottom of this page, the version on the left will be replaced by
+		the version on the right.
+	</p>
+	
+	<hr>
+
+	<div class="row">
+		<div class="col-sm">
+			<div class="card mb-4">
+				<div class="card-header">
+					Current Version
+				</div>
+				<div class="card-body preview being-replaced">
+					{% if published_page %}
+						<h3>{{ published_page.title }}</h3>
+
+						{{ published_page.content | safe }}
+					{% else %}
+						(nothing currently published)
+					{% endif %}
+				</div>
+			</div>
+		</div>
+		<div class="col-sm">
+			<div class="card mb-4">
+				<div class="card-header">
+					New Version
+				</div>
+				<div class="card-body preview">
+					<h3>{{ page.title }}</h3>
+
+					{{ page.content | safe }}
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-sm">
+		</div>
+		<div class="col-sm">
+			<p>
+				Use the following form to publish this page.
+			</p>
+
+			{{ form.render() }}
+		</div>
+	</div>
+{% endblock easycms_content %}
