@@ -136,7 +136,7 @@
 						{% endif %}
 						{% if post %}
 							<a href="{{ url_for('.edit_post_snippet', post_id=post.id) }}" class="btn btn-secondary">Edit Snippet</a>
-							<a href="{{ url_for('.edit_post_seo', post_id=post.id) }}" class="btn btn-secondary">Edit SEO Settings</a>
+							<a href="{{ url_for('.edit_post_seo', post_id=post.id) }}" class="btn btn-secondary">SEO and Author Settings</a>
 							{% if access_control.can_delete_post() %}
 								<a href="{{ url_for('.delete_post', post_id=post.id) }}" class="btn btn-warning">Delete Post</a>
 							{% endif %}

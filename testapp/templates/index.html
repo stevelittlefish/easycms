@@ -6,6 +6,15 @@
 
 {% block content %}
 	<h1>{{ self.title() }}</h1>
+	
+	{% if homepage.content %}
+		{{ homepage.content | safe }}
+
+		<hr>
+	{% endif %}
+	
+	<h2>Blog</h2>
+
 	<div class="blog-post-list">
 		{% for post in pager.items %}
 			<div class="blog-post">

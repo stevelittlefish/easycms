@@ -129,7 +129,15 @@ def edit_page(page_id=None):
     if not page:
         abort(404)
 
+    all_authors = db.session.query(
+        models.CmsAuthor
+    ).order_by(
+        models.CmsAuthor.name
+    ).all()
+
     form = Form([
+        easyforms.ObjectListSelectField('author', all_authors, value=page.author, empty_option=True,
+                                        help_text='This field is optional'),
         easyforms.CkeditorField('page', value=page.content, height=550, width=10,
                                 on_change='handleCkeditorChange', config=settings.ckeditor_config)
     ], label_width=1, submit_text=None, form_name='create-page', form_type=easyforms.HORIZONTAL)
@@ -142,6 +150,7 @@ def edit_page(page_id=None):
             content = ''
 
         page.content = content
+        page.author = form['author']
 
         # Always save a history record
         revision = models.CmsPageRevision(page, user)

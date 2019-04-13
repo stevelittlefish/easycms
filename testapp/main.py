@@ -14,7 +14,7 @@ import easycms.comments
 
 from models import db, User
 import auth
-from constants import posttypes
+from constants import posttypes, pagecodes
 from permissions import has_permission, Permissions
 
 
@@ -74,7 +74,9 @@ def index():
         session=db.session, allow_unpublished=has_permission(Permissions.admin)
     )
 
-    return render_template('index.html', pager=pager)
+    homepage = easycms.get_page_by_code(pagecodes.HOMEPAGE)
+
+    return render_template('index.html', pager=pager, homepage=homepage)
 
 
 @main.route('/posts/<string:post_code>', methods=['GET', 'POST'])

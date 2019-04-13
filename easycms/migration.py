@@ -171,6 +171,9 @@ def update_database(current_db_version):
     if current_db_version.minor_version == 1:
         migrate_0_1_to_0_2()
 
+    if current_db_version.minor_version == 2:
+        migrate_0_2_to_0_3()
+
     log.info('Update Complete!')
 
 
@@ -333,4 +336,28 @@ def migrate_0_1_to_0_2():
     current_db_version = models.CmsVersionHistory(0, 2)
     db.session.add(current_db_version)
     db.session.commit()
+
+
+def migrate_0_2_to_0_3():
+    log.info('Updating from v0.2.X to v0.3.X')
+
+    # New published page tables will have been automatically added
+
+    # Add author field to CmsPage table
+    log.info('> Creating the new author_id column on page table')
+    
+    try:
+        add_column('ALTER TABLE {} ADD COLUMN author_id BIGINT REFERENCES {}(id)'.format(
+            models.CmsPage.__tablename__,
+            models.CmsAuthor.__tablename__
+        ))
+    except ColumnAlreadyExists:
+        log.info('Column already exists - skipping')
+
+    # Update the version
+    log.info('Updating DB Version to 0.3.X')
+    current_db_version = models.CmsVersionHistory(0, 3)
+    db.session.add(current_db_version)
+    db.session.commit()
+
 

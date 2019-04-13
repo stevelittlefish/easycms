@@ -38,6 +38,16 @@
 			<th>Code (URL Name)</th>
 			<td>{{ page.code }} </td>
 		</tr>
+		<tr>
+			<th>Author</th>
+			<td>
+				{% if page.author %}
+					{{ page.author.name }}
+				{% else %}
+					{{ macros.format_result(None) }}
+				{% endif %}
+			</td>
+		</tr>
 	</table>
 {% endblock %}
 

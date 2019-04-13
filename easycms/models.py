@@ -169,6 +169,9 @@ def init(table_prefix, metadata, bind):
         code = Column(String, nullable=False, unique=True)
         content = Column(String, nullable=False)
         disabled = Column(Boolean, nullable=False)
+        author_id = Column(BigInteger, ForeignKey(prefix + 'author.id'), nullable=True)
+
+        author = relationship('CmsAuthor', uselist=False, backref=backref('pages'))
 
         def __init__(self, code, title, content):
             self.created = datetime.datetime.utcnow()
@@ -176,6 +179,7 @@ def init(table_prefix, metadata, bind):
             self.title = title
             self.content = content
             self.disabled = False
+            self.author = None
     
     class CmsPageRevision(Model):
         __tablename__ = prefix + 'page_revision'
@@ -188,6 +192,56 @@ def init(table_prefix, metadata, bind):
         content = Column(String, nullable=False)
 
         page = relationship('CmsPage', uselist=False, backref=backref('revisions', order_by=timestamp.desc()))
+        user = relationship('CmsUser', uselist=False)
+
+        def __init__(self, page, user, revision_notes=None):
+            self.timestamp = datetime.datetime.utcnow()
+            self.page = page
+            self.content = page.content
+            self.user = user
+            self.revision_notes = revision_notes
+
+    class CmsPublishedPage(Model):
+        """
+        If page publishing is enabled, this model is used to store the latest published version of a page.
+        This allows a content editor to make any number of changes to the unpublished page without affecting
+        the live site.  Another user can then publish the page and make it live.
+
+        The same process can still be used after publishing and any number of changes can be made before
+        re-publishing.  Previously published versions can also be restored from the revision history.
+        """
+        __tablename__ = prefix + 'published_page'
+
+        id = Column(BigInteger, primary_key=True, nullable=False)
+        page_id = Column(BigInteger, ForeignKey(prefix + 'page.id'), nullable=False, unique=True)
+        published = Column(DateTime, nullable=False, unique=True)
+        published_by_id = Column(BigInteger, ForeignKey(prefix + 'author.id'), nullable=False)
+        title = Column(String, nullable=False, unique=True)
+        content = Column(String, nullable=False)
+
+        page = relationship('CmsPage', uselist=False, backref=backref('published_page', uselist=False))
+        published_by = relationship('CmsAuthor', uselist=False)
+
+        def __init__(self, page):
+            self.page = page
+            self.apply_page_content()
+
+        def apply_page_content(self):
+            self.published = datetime.datetime.utcnow()
+            self.title = self.page.title
+            self.content = self.page.content
+    
+    class CmsPublishedPageRevision(Model):
+        __tablename__ = prefix + 'published_page_revision'
+
+        id = Column(BigInteger, primary_key=True, nullable=False)
+        published_page_id = Column(BigInteger, ForeignKey(prefix + 'published_page.id'), nullable=False)
+        timestamp = Column(DateTime, nullable=False)
+        user_id = Column(BigInteger, ForeignKey(prefix + 'user.id'), nullable=False)
+        revision_notes = Column(String, nullable=True)
+        content = Column(String, nullable=False)
+
+        published_page = relationship('CmsPublishedPage', uselist=False, backref=backref('revisions', order_by=timestamp.desc()))
         user = relationship('CmsUser', uselist=False)
 
         def __init__(self, page, user, revision_notes=None):
