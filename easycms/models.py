@@ -191,6 +191,16 @@ def init(table_prefix, metadata, bind):
                 return self.published_page.published_by
             
             return None
+
+        @property
+        def front_end_url(self):
+            settings = get_settings()
+            
+            if settings.view_page_url_function is None:
+                raise Exception('To generate front-end URLS you need to set the view_post_url_function variable '
+                                'in your EasyCmsSettings object')
+
+            return settings.view_page_url_function(self)
     
     class CmsPageRevision(Model):
         __tablename__ = prefix + 'page_revision'
@@ -257,6 +267,10 @@ def init(table_prefix, metadata, bind):
         @property
         def author(self):
             return self.page.author
+
+        @property
+        def front_end_url(self):
+            return self.page.front_end_url
     
     class CmsPublishedPageRevision(Model):
         __tablename__ = prefix + 'published_page_revision'

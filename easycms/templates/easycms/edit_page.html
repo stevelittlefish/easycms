@@ -88,8 +88,14 @@
 			</a>
 			{% if page %}
 				<a class="btn btn-secondary" href="{{ url_for('.view_page', page_id=page.id) }}">
-					<span class="oi" data-glyph="arrow-left"></span> Back to Page
+					<span class="oi" data-glyph="eye"></span> Preview Page
 				</a>
+				{% if settings.front_end_page_urls_enabled %}
+					<a class="btn btn-secondary" href="{{ page.front_end_url }}">
+						<span class="oi" data-glyph="external-link"></span>
+						View Live Page
+					</a>
+				{% endif %}
 			{% endif %}
 		</div>
 
@@ -106,6 +112,9 @@
 					<input type="submit" class="btn btn-primary" name="page" value="Save">
 					{% if page %}
 						<a href="{{ url_for('.view_page_history', page_id=page.id) }}" class="btn btn-secondary">View Revision History</a>
+						{% if settings.page_publishing_enabled %}
+							<a href="{{ url_for('.view_published_page_history', page_id=page.id) }}" class="btn btn-secondary">View Publishing History</a>
+						{% endif %}
 					{% endif %}
 					<button class="btn btn-secondary" onclick="backgroundSave(); return false">Background Save</button>
 				</div>

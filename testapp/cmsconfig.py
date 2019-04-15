@@ -98,6 +98,11 @@ def comment_reply_hook(comment):
     sendemail.send_blog_comment_reply_notification_email(email, name, comment)
 
 
+def page_needs_publishing_hook(page):
+    # Send the notification emails
+    sendemail.send_page_needs_publishing_email('admin@blog.com', page)
+
+
 ckeditor_config = easyforms.CkeditorConfig(
     allow_all_extra_content=False,
     strikethrough_enabled=True,
@@ -126,10 +131,13 @@ settings = easycms.settings.EasyCmsSettings(
     post_main_image_height=600,
     post_main_image_required=True,
     view_post_url_function=lambda post: url_for('main.view_blog_post', post_code=post.code, _external=True),
+    # There is only 1 page and it's the index page!  You might have to do something a bit clever here!
+    view_page_url_function=lambda post: url_for('main.index', _external=True),
     comments_enabled=True,
     comment_added_hook=comment_added_hook,
     comment_reply_hook=comment_reply_hook,
-    page_publishing_enabled=True
+    page_publishing_enabled=True,
+    page_needs_publishing_hook=page_needs_publishing_hook
 )
 
 page_defs = [

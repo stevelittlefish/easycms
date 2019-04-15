@@ -82,7 +82,7 @@
 					<td colspan="3">
 						<div>
 							On
-							<a href="{{ comment.post.front_end_url if settings.front_end_urls_enabled else comment.post.editor_url }}">
+							<a href="{{ comment.post.front_end_url if settings.front_end_post_urls_enabled else comment.post.editor_url }}">
 								<strong>{{ comment.post.title }}</strong>
 							</a>
 						</div>

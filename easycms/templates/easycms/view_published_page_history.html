@@ -4,10 +4,19 @@
 
 {% block easycms_content %}
 	<div class="button-list">
+		<a class="btn btn-secondary" href="{{ url_for('.edit_page', page_id=page.id) }}">
+			<span class="oi" data-glyph="arrow-left"></span> Back to Edit Page
+		</a>
 		<a class="btn btn-secondary" href="{{ url_for('.view_page', page_id=page.id) }}">
 			<span class="oi" data-glyph="arrow-left"></span> View Page
 		</a>
 	</div>
+	
+	<p>
+		This page shows the history of <strong>published</strong> versions of this page.  This may not show the
+		latest unpublished content and there may be revisions missing from this history.  To view all unpublished
+		versions of this page click here: <a href="{{ url_for('.view_page_history', page_id=page.id) }}">Un-published Revision History</a>.
+	</p>
 
 	<hr>
 

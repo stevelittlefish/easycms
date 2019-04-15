@@ -98,7 +98,7 @@
 				<a class="btn btn-secondary" href="{{ url_for('.view_post', post_id=post.id) }}">
 					<span class="oi" data-glyph="eye"></span> Preview Post
 				</a>
-				{% if settings.front_end_urls_enabled %}
+				{% if settings.front_end_post_urls_enabled %}
 					<a class="btn btn-secondary" href="{{ post.front_end_url }}">
 						<span class="oi" data-glyph="external-link"></span>
 						View Live Post

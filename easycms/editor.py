@@ -181,6 +181,11 @@ def edit_page(page_id=None):
                             'submitUrl': url_for('.edit_page', page_id=page.id),
                             'message': 'Page save successfully (background)'})
         
+        # Page published hook
+        page_needs_publishing_hook = get_settings().page_needs_publishing_hook
+        if page_needs_publishing_hook:
+            page_needs_publishing_hook(page)
+
         flash('Page "{}" saved'.format(page.title), 'success')
         return redirect(url_for('.view_page', page_id=page.id))
 

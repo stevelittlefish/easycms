@@ -177,6 +177,10 @@ div.button-list > a.btn {
 	opacity: 0.6;
 }
 
+.shrink-images img {
+	max-width: 100%;
+}
+
 .blog-snippet {
 	background-color: white;
 	margin: 50px 8px 20px;

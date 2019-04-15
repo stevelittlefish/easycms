@@ -21,3 +21,9 @@ def send_blog_comment_notification_email(blog_notification_email, comment):
     ))
 
 
+def send_page_needs_publishing_email(email, page):
+    log.info('**EMAIL:** Hi {}, some changes to the page {} need to be published'.format(
+        email, page.title
+    ))
+
+

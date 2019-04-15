@@ -22,12 +22,12 @@
 	<hr>
 
 	<div class="row">
-		<div class="col-sm">
+		<div class="col-sm-6">
 			<div class="card mb-4">
 				<div class="card-header">
 					Current Version
 				</div>
-				<div class="card-body preview being-replaced">
+				<div class="card-body preview shrink-images being-replaced">
 					{% if published_page %}
 						<h3>{{ published_page.title }}</h3>
 
@@ -38,12 +38,12 @@
 				</div>
 			</div>
 		</div>
-		<div class="col-sm">
+		<div class="col-sm-6">
 			<div class="card mb-4">
 				<div class="card-header">
 					New Version
 				</div>
-				<div class="card-body preview">
+				<div class="card-body preview shrink-images">
 					<h3>{{ page.title }}</h3>
 
 					{{ page.content | safe }}
