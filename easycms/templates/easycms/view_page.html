@@ -19,6 +19,11 @@
 				<span class="oi" data-glyph="share"></span> Publish Page
 			</a>
 		{% endif %}
+		{% if settings.page_publishing_enabled and (page.published_by or page.published_page) and access_control.can_publish_page() %}
+			<a class="btn btn-secondary" href="{{ url_for('.view_published_page_history', page_id=page.id) }}">
+				<span class="oi" data-glyph="calendar"></span> Published Page History
+			</a>
+		{% endif %}
 	</div>
 	
 	{% if settings.page_publishing_enabled and not page.published %}
@@ -71,6 +76,16 @@
 			<tr>
 				<th>Published</th>
 				<td>{{ macros.format_result(page.published) }}</td>
+			</tr>
+			<tr>
+				<th>Published By</th>
+				<td>
+					{% if page.published %}
+						{{ page.published_by.name }}
+					{% else %}
+						{{ macros.format_result(None) }}
+					{% endif %}
+				</td>
 			</tr>
 		{% endif %}
 	</table>

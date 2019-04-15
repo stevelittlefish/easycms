@@ -184,6 +184,13 @@ def init(table_prefix, metadata, bind):
             self.disabled = False
             self.author = None
             self.published = False
+
+        @property
+        def published_by(self):
+            if self.published and self.published_page:
+                return self.published_page.published_by
+            
+            return None
     
     class CmsPageRevision(Model):
         __tablename__ = prefix + 'page_revision'

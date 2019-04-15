@@ -74,7 +74,7 @@ def index():
         session=db.session, allow_unpublished=has_permission(Permissions.admin)
     )
 
-    homepage = easycms.get_page_by_code(pagecodes.HOMEPAGE)
+    homepage = easycms.get_published_page_by_code(pagecodes.HOMEPAGE)
 
     return render_template('index.html', pager=pager, homepage=homepage)
 

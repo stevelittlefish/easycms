@@ -8,6 +8,17 @@
 	<h1>{{ self.title() }}</h1>
 	
 	{% if homepage.content %}
+		<hr>
+			<p>
+				Page written {% if homepage.author %}by <strong>{{ homepage.author.name }}</strong>{% endif %} on
+				{{ homepage.created | format_datetime }}.
+			</p>
+			<p>
+				Page published by <strong>{{ homepage.published_by.name }}</strong> on
+				{{ homepage.published | format_datetime }}.
+			</p>
+		<hr>	
+
 		{{ homepage.content | safe }}
 
 		<hr>

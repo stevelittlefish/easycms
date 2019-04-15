@@ -279,6 +279,59 @@ def publish_page(page_id):
     return render_template('easycms/publish_page.html', page=page, published_page=published_page, form=form)
 
 
+@editor.route('/pages/<int:page_id>/published-history/latest', methods=['GET', 'POST'])
+@editor.route('/pages/<int:page_id>/published-history/<int:history_id>', methods=['GET', 'POST'])
+@accesscontrol.can_edit_page
+def view_published_page_history(page_id, history_id=None):
+    page = db.session.query(models.CmsPage).filter(models.CmsPage.id == page_id).one_or_none()
+    if not page:
+        abort(404)
+
+    published_page = page.published_page
+    if not published_page:
+        abort(404)
+
+    if not published_page.revisions:
+        flash('This published page has no history to view', 'danger')
+        return redirect(url_for('.view_page', page_id=page.id))
+
+    if history_id is None:
+        history = published_page.revisions[0]
+    else:
+        # Load the history record
+        history = db.session.query(
+            models.CmsPublishedPageRevision
+        ).filter(
+            models.CmsPublishedPageRevision.published_page_id == published_page.id,
+            models.CmsPublishedPageRevision.id == history_id
+        ).one_or_none()
+
+        if not history:
+            abort(404)
+
+    if request.method == 'POST':
+        # We need to restore the revision
+        published_page.content = history.content
+
+        # Add another history row
+        user = accesscontrol.get_access_control().get_logged_in_cms_user()
+        notes = 'Restored published revision {} from {}'.format(
+            history.id, timetool.format_datetime_seconds(history.timestamp)
+        )
+        new_history = models.CmsPublishedPageRevision(published_page, user, revision_notes=notes)
+        db.session.add(new_history)
+
+        # Set paged.published back to False
+        page.published = False
+
+        db.session.commit()
+        flash('Revision restored successfully', 'success')
+        return redirect(url_for('.view_page', page_id=page.id, published='True'))
+
+    return render_template('easycms/view_published_page_history.html', page=page, published_page=published_page,
+                           history=history)
+
+
 @editor.route('/posts')
 @editor.route('/posts/<string:post_type>')
 @accesscontrol.can_view_editor

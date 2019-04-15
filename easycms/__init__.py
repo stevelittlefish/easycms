@@ -223,6 +223,24 @@ def get_page_by_code(code, allow_disabled=True, session=None):
     return query.one_or_none()
 
 
+def get_published_page_by_code(code, allow_disabled=True, session=None):
+    if session is None:
+        session = models.session
+
+    query = session.query(
+        models.CmsPublishedPage
+    ).join(
+        models.CmsPage
+    ).filter(
+        models.CmsPage.code == code
+    )
+
+    if not allow_disabled:
+        query = query.filter(models.CmsPage.disabled == False)
+
+    return query.one_or_none()
+
+
 def get_category_by_code(post_type, code, session=None):
     if session is None:
         session = models.session
