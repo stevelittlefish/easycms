@@ -122,5 +122,15 @@
 
 			{{ form.render_after_sections() }}
 		</div>
+
+		{% if settings.page_publishing_enabled %}
+			<hr class="mt-5">
+
+			<p>
+				<strong>Note:</strong> Pages need to be published before they appear on the live website.  Changes
+				made with this editor will not appear on the live site until they are published by a user with
+				the correct permissions.
+			</p>
+		{% endif %}
 	</div>
 {% endblock easycms_content %}
