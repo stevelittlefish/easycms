@@ -131,8 +131,6 @@ settings = easycms.settings.EasyCmsSettings(
     post_main_image_height=600,
     post_main_image_required=True,
     view_post_url_function=lambda post: url_for('main.view_blog_post', post_code=post.code, _external=True),
-    # There is only 1 page and it's the index page!  You might have to do something a bit clever here!
-    view_page_url_function=lambda post: url_for('main.index', _external=True),
     comments_enabled=True,
     comment_added_hook=comment_added_hook,
     comment_reply_hook=comment_reply_hook,
@@ -141,6 +139,6 @@ settings = easycms.settings.EasyCmsSettings(
 )
 
 page_defs = [
-    PageDef(pagecodes.HOMEPAGE, 'Homepage'),
+    PageDef(pagecodes.HOMEPAGE, 'Homepage', lambda: url_for('main.index', _external=True)),
 ]
 

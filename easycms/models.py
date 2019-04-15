@@ -15,7 +15,7 @@ from bs4 import BeautifulSoup
 from unidecode import unidecode
 from flask import url_for, request
 
-from .settings import get_settings
+from .settings import get_settings, get_page_defs
 import easycms
 from easycms import cmsutil
 from easycms import constants
@@ -193,15 +193,17 @@ def init(table_prefix, metadata, bind):
             return None
 
         @property
-        def front_end_url(self):
-            settings = get_settings()
-            
-            if settings.view_page_url_function is None:
-                raise Exception('To generate front-end URLS you need to set the view_post_url_function variable '
-                                'in your EasyCmsSettings object')
+        def page_def(self):
+            for page_def in get_page_defs():
+                if page_def.code == self.code:
+                    return page_def
 
-            return settings.view_page_url_function(self)
+            raise Exception('Could not find page def for page with code "{}"'.format(self.code))
     
+        @property
+        def front_end_url(self):
+            return self.page_def.url
+        
     class CmsPageRevision(Model):
         __tablename__ = prefix + 'page_revision'
 
@@ -267,6 +269,10 @@ def init(table_prefix, metadata, bind):
         @property
         def author(self):
             return self.page.author
+        
+        @property
+        def page_def(self):
+            return self.page.page_def
 
         @property
         def front_end_url(self):

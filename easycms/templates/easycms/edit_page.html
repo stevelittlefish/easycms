@@ -90,7 +90,7 @@
 				<a class="btn btn-secondary" href="{{ url_for('.view_page', page_id=page.id) }}">
 					<span class="oi" data-glyph="eye"></span> Preview Page
 				</a>
-				{% if settings.front_end_page_urls_enabled %}
+				{% if page.front_end_url %}
 					<a class="btn btn-secondary" href="{{ page.front_end_url }}">
 						<span class="oi" data-glyph="external-link"></span>
 						View Live Page

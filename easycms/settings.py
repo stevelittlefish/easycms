@@ -13,14 +13,32 @@ __author__ = 'Stephen Brown (Little Fish Solutions LTD)'
 
 log = logging.getLogger(__name__)
 
+# EasyCmsSettings instance
 _settings = None
+
+# List of page defs
 _page_defs = None
 
 
 class PageDef(object):
-    def __init__(self, code, title):
+    def __init__(self, code, title, url=None):
+        """
+        :param code: The code that will be used to identify this page
+        :param title: The title of the page.  Used by the editor, can be used in front-end website
+        :param url: Optional URL of the page.  Allows the editor to link back to the front-end page.  Must be
+                    a full external URL (use _external=True).  If you set this to a function then the function
+                    will be called to get the url (recommended for using url_for)
+        """
         self.code = code
         self.title = title
+        self._url = url
+
+    @property
+    def url(self):
+        if callable(self._url):
+            return self._url()
+
+        return self._url
 
 
 class EasyCmsSettings(object):
@@ -51,7 +69,6 @@ class EasyCmsSettings(object):
             post_main_image_required=False,
             post_code_is_edittable=False,
             view_post_url_function=None,
-            view_page_url_function=None,
             comments_enabled=False,
             comment_added_hook=None,
             comment_reply_hook=None,
@@ -85,9 +102,6 @@ class EasyCmsSettings(object):
         :param post_code_is_edittable: Can the code of a post be editted?
         :param view_post_url_function: Set to a function that takes a post as its only argument and returns a url
                                        to view that post. The returned URL must be a full URL (i.e. use
-                                       _external=True if using flask.get_url)
-        :param view_page_url_function: Set to a function that takes a page as its only argument and returns a url
-                                       to view that page. The returned URL must be a full URL (i.e. use
                                        _external=True if using flask.get_url)
         :param comments_enabled: Are comments enabled?
         :param comment_added_hook: Set to a function which takes a single parameter to add a comment hook.
@@ -130,7 +144,6 @@ class EasyCmsSettings(object):
         self.post_main_image_required = post_main_image_required
         self.post_code_is_edittable = post_code_is_edittable
         self.view_post_url_function = view_post_url_function
-        self.view_page_url_function = view_page_url_function
         self.comments_enabled = comments_enabled
         self.comment_added_hook = comment_added_hook
         self.comment_reply_hook = comment_reply_hook
@@ -147,10 +160,6 @@ class EasyCmsSettings(object):
 
     @property
     def front_end_post_urls_enabled(self):
-        return self.view_post_url_function is not None
-
-    @property
-    def front_end_page_urls_enabled(self):
         return self.view_post_url_function is not None
 
     @property
