@@ -48,6 +48,7 @@ class EasyCmsSettings(object):
             home_link_endpoint='easycms_editor.index',
             website_name='EasyCMS',
             logout_endpoint=None,
+            access_denied_function=None,
             tagline_max_length=170,
             snippets_enabled=True,
             snippet_image_width=350,
@@ -82,6 +83,13 @@ class EasyCmsSettings(object):
         :param home_link_endpoint: Flask endpoint for home link to point to
         :param website_name: Name of website - used in editor pages
         :param logout_endpoint: Flask endpoint for logout link to point to
+        :param access_denied_function: Set to a function that takes no arguments and either returns a Flask
+                                       response or None.  This will be called whenever a user has insufficient
+                                       permissions to view an endpoint.  You will probably want to check if they
+                                       are logged in and return None if they are, and return a redirect to the
+                                       login page if they are not logged in.  If this returns None an error
+                                       message will be displayed.  You could also return a custom error page
+                                       if you want.
         :param tagline_max_length: Maximum length for the "tagline"
         :param snippets_enabled: Enable the snippets system
         :param snippet_image_width: Width of snippet image in pixels
@@ -127,6 +135,7 @@ class EasyCmsSettings(object):
         self.home_link_endpoint = home_link_endpoint
         self.website_name = website_name
         self.logout_endpoint = logout_endpoint
+        self.access_denied_function = access_denied_function
         self.tagline_max_length = tagline_max_length
         self.snippets_enabled = snippets_enabled
         self.snippet_image_width = snippet_image_width

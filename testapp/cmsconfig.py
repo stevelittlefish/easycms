@@ -103,6 +103,17 @@ def page_needs_publishing_hook(page):
     sendemail.send_page_needs_publishing_email('admin@blog.com', page)
 
 
+def access_denied_function():
+    user = auth.get_user()
+
+    if user:
+        # User is logged in - they must have insufficient permissions
+        return None
+
+    # No user - let them log in to see if they have the right permissions
+    return auth.login_redirect()
+
+
 ckeditor_config = easyforms.CkeditorConfig(
     allow_all_extra_content=False,
     strikethrough_enabled=True,
@@ -118,6 +129,7 @@ settings = easycms.settings.EasyCmsSettings(
     home_link_endpoint='main.index',
     website_name='Test Site',
     logout_endpoint='main.logout',
+    access_denied_function=access_denied_function,
     ckeditor_config=ckeditor_config,
     # custom_stylesheet_url='/static/css/editor.css',
     # editor_base_template='admin/cmsbase.html',

@@ -5,6 +5,8 @@ Access control for easy cms
 import logging
 from functools import wraps
 
+from .settings import get_settings
+
 __author__ = 'Stephen Brown (Little Fish Solutions LTD)'
 
 log = logging.getLogger(__name__)
@@ -87,6 +89,12 @@ def _access_control_handler(access_control_method, f, args, kwargs):
     ac_function = getattr(access_control, access_control_method) if access_control_method else lambda: True
     if not access_control.can_view_editor() or not ac_function():
         # Not allowed in!
+        settings = get_settings()
+        if settings.access_denied_function:
+            response = settings.access_denied_function()
+            if response:
+                return response
+
         return editor.error_page('You don\'t have permission to view this page', title='Access Denied', http_status_code=403)
 
     # Allow access to the decorated view
