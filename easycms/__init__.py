@@ -102,6 +102,19 @@ def init(app, engine_or_connection, metadata=None, all_post_types=['post'], tabl
     log.info('EasyCMS v{} Initialisation Complete'.format(VERSION))
 
 
+def get_all_users_query(session=None):
+    if session is None:
+        session = models.session
+
+    query = session.query(
+        models.CmsUser
+    ).order_by(
+        models.CmsUser.id
+    )
+
+    return query
+
+
 def get_all_posts_query(post_type=None, allow_unpublished=False, session=None):
     if session is None:
         session = models.session
@@ -207,23 +220,35 @@ def get_post_by_code(post_type, code, allow_unpublished=False, session=None):
     return query.one_or_none()
 
 
-def get_page_by_code(code, allow_disabled=True, session=None):
+def get_all_pages_query(allow_disabled=False, session=None):
     if session is None:
         session = models.session
 
     query = session.query(
         models.CmsPage
+    ).order_by(
+        models.CmsPage.id
+    )
+
+    if not allow_disabled:
+        query = query.filter(
+            models.CmsPage.disabled == False
+        )
+
+    return query
+
+
+def get_page_by_code(code, allow_disabled=True, session=None):
+    query = get_all_pages_query(
+        allow_disabled=allow_disabled, session=session
     ).filter(
         models.CmsPage.code == code
     )
 
-    if not allow_disabled:
-        query = query.filter(models.CmsPage.disabled == False)
-
     return query.one_or_none()
 
 
-def get_published_page_by_code(code, allow_disabled=True, session=None):
+def get_all_published_pages_query(allow_disabled=False, session=None):
     if session is None:
         session = models.session
 
@@ -231,12 +256,24 @@ def get_published_page_by_code(code, allow_disabled=True, session=None):
         models.CmsPublishedPage
     ).join(
         models.CmsPage
-    ).filter(
-        models.CmsPage.code == code
+    ).order_by(
+        models.CmsPublishedPage.id
     )
 
     if not allow_disabled:
-        query = query.filter(models.CmsPage.disabled == False)
+        query = query.filter(
+            models.CmsPage.disabled == False
+        )
+
+    return query
+
+
+def get_published_page_by_code(code, allow_disabled=True, session=None):
+    query = get_all_published_pages_query(
+        allow_disabled=allow_disabled, session=session
+    ).filter(
+        models.CmsPage.code == code
+    )
 
     return query.one_or_none()
 

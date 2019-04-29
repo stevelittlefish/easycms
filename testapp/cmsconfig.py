@@ -109,7 +109,8 @@ ckeditor_config = easyforms.CkeditorConfig(
     disallowed_content='img[height]',
     # custom_styles_js_url='/static/js/ckeditor_styles.js',
     # custom_contents_css_url='/static/css/ckeditor_contents.css',
-    force_paste_as_plain_text=True
+    force_paste_as_plain_text=True,
+    div_enabled=True
 )
 
 settings = easycms.settings.EasyCmsSettings(

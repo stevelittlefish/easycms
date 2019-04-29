@@ -61,6 +61,8 @@ class EasyCmsSettings(object):
             init_filemanager=True,
             filemanager_url_prefix='/fm',
             ckeditor_config=None,
+            post_ckeditor_config=None,
+            page_ckeditor_config=None,
             custom_stylesheet_url=None,
             editor_base_template='easycms/root.html',
             post_main_image_enabled=False,
@@ -93,6 +95,8 @@ class EasyCmsSettings(object):
         :param init_filemanager: Whether or not to automatically initialise the filemanager
         :param filemanager_url_prefix: URL prefix for filemanager
         :param ckeditor_config: easyforms.CkeditorConfig to configure CK Editor fields in the CMS editor
+        :param post_ckeditor_config: easyforms.CkeditorConfig to override ckeditor_config when editing pages
+        :param page_ckeditor_config: easyforms.CkeditorConfig to override ckeditor_config when editing posts
         :param custom_stylesheet_url: URL of custom stylesheet for rendering post content
         :param editor_base_template: Path of base template if you wish to override the default base template
         :param post_main_image_enabled: Do posts have a "main image" - an image that is not part of the regular content
@@ -136,6 +140,8 @@ class EasyCmsSettings(object):
         self.init_filemanager = init_filemanager
         self.filemanager_url_prefix = filemanager_url_prefix
         self._ckeditor_config = ckeditor_config
+        self._post_ckeditor_config = post_ckeditor_config
+        self._page_ckeditor_config = page_ckeditor_config
         self.custom_stylesheet_url = custom_stylesheet_url
         self.editor_base_template = editor_base_template
         self.post_main_image_enabled = post_main_image_enabled
@@ -161,17 +167,41 @@ class EasyCmsSettings(object):
     @property
     def front_end_post_urls_enabled(self):
         return self.view_post_url_function is not None
-
-    @property
-    def ckeditor_config(self):
+    
+    def _process_ckeditor_config(self, raw_config):
         filemanager_url = None
         if self.init_filemanager:
             filemanager_url = url_for('flaskfilemanager.index')
 
-        return self._ckeditor_config.clone(
+        return raw_config.clone(
             filemanager_url=filemanager_url,
             ckeditor_url=url_for('easycms_editor.static', filename='ckeditor/ckeditor.js')
         )
+
+    @property
+    def ckeditor_config(self):
+        """
+        :return the base ckeditor config
+        """
+        return self._process_ckeditor_config(self._ckeditor_config)
+
+    @property
+    def page_ckeditor_config(self):
+        """
+        :return the ckeditor config that should be used when editing pages
+        """
+        config = self._page_ckeditor_config if self._page_ckeditor_config else self._ckeditor_config
+
+        return self._process_ckeditor_config(config)
+
+    @property
+    def post_ckeditor_config(self):
+        """
+        :return the ckeditor config that should be used when editing posts
+        """
+        config = self._post_ckeditor_config if self._post_ckeditor_config else self._ckeditor_config
+
+        return self._process_ckeditor_config(config)
 
 
 def init(easy_cms_settings, page_defs):

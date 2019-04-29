@@ -2,7 +2,7 @@ beautifulsoup4==4.7.1
 certifi==2018.11.29
 chardet==3.0.4
 Click==7.0
-easyforms==0.1.8
+easyforms==0.1.13
 Flask==1.0.2
 Flask-SQLAlchemy==2.3.2
 flaskfilemanager==0.0.5

@@ -149,7 +149,7 @@ def edit_page(page_id=None):
         easyforms.ObjectListSelectField('author', all_authors, value=page.author, empty_option=True,
                                         help_text='This field is optional'),
         easyforms.CkeditorField('page', value=page.content, height=550, width=10,
-                                on_change='handleCkeditorChange', config=settings.ckeditor_config)
+                                on_change='handleCkeditorChange', config=settings.page_ckeditor_config)
     ], label_width=1, submit_text=None, form_name='create-page', form_type=easyforms.HORIZONTAL)
     
     user = accesscontrol.get_access_control().get_logged_in_cms_user()
@@ -242,6 +242,9 @@ def publish_page(page_id):
     page = db.session.query(models.CmsPage).filter(models.CmsPage.id == page_id).one_or_none()
     if not page:
         abort(404)
+
+    if page.published:
+        return error_page('This page is already published')
 
     published_page = page.published_page
 
@@ -421,7 +424,7 @@ def edit_post(post_type=None, post_id=None):
         )
 
     fields.append(easyforms.CkeditorField('post', value=post.content if post else None, height=550, width=10,
-                                          on_change='handleCkeditorChange', config=settings.ckeditor_config))
+                                          on_change='handleCkeditorChange', config=settings.post_ckeditor_config))
 
     form = Form(fields, label_width=1, submit_text=None, form_name='create-post', form_type=easyforms.HORIZONTAL)
     
