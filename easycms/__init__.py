@@ -380,7 +380,7 @@ def get_all_authors_query(session=None):
         models.CmsAuthor
     ).order_by(
         models.CmsAuthor.id
-    ).all()
+    )
 
 
 def get_all_authors(session=None):
