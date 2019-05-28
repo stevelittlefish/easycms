@@ -390,7 +390,7 @@ def get_all_authors(session=None):
 def get_author_by_code(author_code, session=None):
     query = get_all_authors_query(session)
 
-    query.filter(
+    return query.filter(
         models.CmsAuthor.code == author_code
     ).one_or_none()
 
