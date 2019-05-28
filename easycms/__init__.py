@@ -372,13 +372,25 @@ def get_comment_by_id(comment_id, session=None):
     ).one_or_none()
 
 
-def get_author_by_code(author_code, session=None):
+def get_all_authors_query(session=None):
     if session is None:
         session = models.session
 
     return session.query(
         models.CmsAuthor
-    ).filter(
+    ).order_by(
+        models.CmsAuthor.id
+    ).all()
+
+
+def get_all_authors(session=None):
+    return get_all_authors_query(session).all()
+
+
+def get_author_by_code(author_code, session=None):
+    query = get_all_authors_query(session)
+
+    query.filter(
         models.CmsAuthor.code == author_code
     ).one_or_none()
 
