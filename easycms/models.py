@@ -14,6 +14,7 @@ from titlecase import titlecase
 from bs4 import BeautifulSoup
 from unidecode import unidecode
 from flask import url_for, request
+from littlefish import timetool
 
 from .settings import get_settings, get_page_defs
 import easycms
@@ -498,6 +499,23 @@ def init(table_prefix, metadata, bind):
                                 'in your EasyCmsSettings object')
 
             return settings.view_post_url_function(self)
+
+        @property
+        def is_published(self):
+            return self.published and self.published <= datetime.datetime.utcnow()
+
+        @property
+        def is_scheduled(self):
+            return self.published and self.published > datetime.datetime.utcnow()
+
+        @property
+        def published_string(self):
+            if self.is_scheduled:
+                return 'Scheduled to be published on {}'.format(timetool.format_datetime(self.published))
+            elif self.is_published:
+                return timetool.format_datetime(self.published)
+            else:
+                return 'Not published'
 
     class CmsPostRevision(Model):
         __tablename__ = prefix + 'post_revision'

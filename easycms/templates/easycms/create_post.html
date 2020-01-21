@@ -1,0 +1,31 @@
+{% extends 'easycms/base.html' %}
+
+{% block easycms_title %}Create {{ post_type | title }} Post{% endblock easycms_title %}
+
+{% block easycms_h1 %}
+{% endblock easycms_h1 %}
+
+{% block easycms_content %}
+	<div id="page-content">
+		<div class="button-list">
+			<a class="btn btn-secondary" href="{{ url_for('.view_posts') }}">
+				<span class="oi" data-glyph="arrow-left"></span> View All Posts
+			</a>
+			<a class="btn btn-secondary" href="{{ url_for('.edit_category') }}">
+				<span class="oi" data-glyph="plus"></span> Create Category
+			</a>
+		</div>
+		<h1>{{ self.easycms_title() }}</h1>
+
+		<p>
+			Use this page to create a new {{ post_type }} post. Once you have saved the post
+			you will be able to edit the content and other fields and publish it.
+		</p>
+
+		<br>
+
+		<div id="main-form">
+			{{ form.render() }}
+		</div>
+	</div>
+{% endblock easycms_content %}

@@ -9,7 +9,7 @@
 		</a>
 		{% if access_control.can_edit_post() %}
 			{% for post_type in post_types %}
-				<a class="btn btn-primary" href="{{ url_for('.edit_post', post_type=post_type) }}">
+				<a class="btn btn-primary" href="{{ url_for('.create_post', post_type=post_type) }}">
 					<span class="oi" data-glyph="plus"></span> Create New {{ post_type | title }} Post
 				</a>
 			{% endfor %}

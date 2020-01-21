@@ -117,6 +117,14 @@
 
 		<div id="main-form">
 			{{ form.render_before_sections() }}
+			{{ form.render_section('main') }}
+
+			<div class="row">
+				<div class="col-sm-10 offset-sm-1">
+					<h4>Publish Post</h4>
+				</div>
+			</div>
+			{{ form.render_section('publish') }}
 
 			<div class="row">
 				<div class="col-sm-10 offset-sm-1">

@@ -1,0 +1,98 @@
+{% extends 'ef_basic_input.html' %}
+
+{% block input %}
+	<div class="easycms-publish-field">
+		<table>
+			<tr>
+				<td>
+					<input type="radio" name="{{ field.name }}" value="False" id="{{ field.id }}-do-not-publish" {% if not field.value %}checked{% endif %}>
+				</td>
+				<td>
+					<label for="{{ field.id }}-do-not-publish">
+						Do Not Publish
+					</label>
+				</td>
+			</tr>
+			{% if post.published %}
+				<tr>
+					<td>
+						<input type="radio" name="{{ field.name }}" value="Keep" id="{{ field.id }}-keep" {% if field.value %}checked{% endif %}>
+					</td>
+					<td>
+						<label for="{{ field.id }}-keep">
+							Keep Current Published Date
+						</label>
+					</td>
+				</tr>
+			{% else %}
+				<tr>
+					<td>
+						<input type="radio" name="{{ field.name }}" value="Now" id="{{ field.id }}-publish-now">
+					</td>
+					<td>
+						<label for="{{ field.id }}-publish-now">
+							Publish Now
+						</label>
+					</td>
+				</tr>
+			{% endif %}
+			<tr>
+				<td>
+					<input type="radio" name="{{ field.name }}" value="Date" id="{{ field.id }}-publish-custom">
+				</td>
+				<td>
+					<label for="{{ field.id }}-publish-custom">
+						Schedule / Publish at a Specific Date
+					</label>
+				</td>
+			</tr>
+			<tr id="{{ field.id }}-publish-date-row">
+				<td></td>
+				<td>
+					<div class="publish-custom-field-row">
+						Date: <input type="text" class="date-picker" name="{{ field.name }}-custom-date"
+									 id="{{ field.id }}-custom-date" value="{{ default_date }}">
+					</div>
+					<div class="publish-custom-field-row">
+						Time: <input type="number" name="{{ field.name }}-custom-hour"
+									 id="{{ field.id }}-custom-hour" value="{{ default_hour }}"
+									 placeholder="Hour" min="0" max="23" style="width: 100px; display: inline">
+						:
+						<input type="number" name="{{ field.name }}-custom-minute"
+							   id="{{ field.id }}-custom-minute" value="{{ default_minute }}"
+							   placeholder="Minute" min="0" max="59" style="width: 100px; display: inline">
+					</div>
+				</td>
+			</tr>
+		</table>
+	</div>
+	
+	{# Bootstrap 4 error reporting is retarded #}
+	{% if field.error and field.style == styles.BOOTSTRAP_4 %}
+		<div class="invalid-feedback d-block">
+			{{ field.error }}
+		</div>
+	{% endif %}
+{% endblock %}
+
+{% block form_control_end %}
+	<script>
+		(function(){
+			function handleRadioChange(event) {
+				var value = $(this).attr("value");
+				
+				var dateFields = $("#{{ field.id }}-publish-date-row");
+
+				if (value == "Date") {
+					dateFields.show();
+				}
+				else {
+					dateFields.hide();
+				}
+			}
+			
+			$("input[name={{ field.name }}]").change(handleRadioChange);
+			$("input[name={{ field.name }}]:checked").change();
+		})();
+	</script>
+{% endblock form_control_end %}

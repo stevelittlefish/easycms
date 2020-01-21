@@ -26,6 +26,8 @@ from .settings import get_settings, get_page_defs
 from .models import db
 import easycms
 from . import comments
+from . import forms
+from .customfields import customfields
 
 __author__ = 'Stephen Brown (Little Fish Solutions LTD)'
 
@@ -364,25 +366,75 @@ def view_post(post_id):
 
 
 @editor.route('/posts/<string:post_type>/new', methods=['GET', 'POST'])
+@accesscontrol.can_edit_post
+def create_post(post_type):
+    settings = get_settings()
+
+    categories = db.session.query(
+        models.CmsCategory
+    ).filter(
+        models.CmsCategory.post_type == post_type
+    ).order_by(
+        models.CmsCategory.name
+    ).all()
+
+    if not categories:
+        flash('You must add at least one {0} category before creating a {0} post'.format(post_type), 'danger')
+        return redirect(url_for('.view_categories'))
+    
+    fields = forms.get_post_important_fields(categories)
+    form = Form(fields, label_width=1, submit_text='Save', submit_css_class='btn-primary btn-lg',
+                form_type=easyforms.HORIZONTAL)
+
+    user = accesscontrol.get_access_control().get_logged_in_cms_user()
+
+    if form.ready:
+        duplicate = db.session.query(
+            models.CmsPost
+        ).filter(
+            models.CmsPost.post_type == post_type,
+            models.CmsPost.title.ilike(form['title'])
+        ).first()
+
+        if duplicate:
+            form.set_error('title', 'A post with this title already exists')
+
+    if form.ready:
+        content = ''
+
+        main_image_url = None
+        if settings.post_main_image_enabled:
+            main_image_url = form['main-image']
+
+        post = models.CmsPost(
+            post_type, form['category'], titlecase(form['title']), content, user.author,
+            form['tagline'], False, main_image_url=main_image_url
+        )
+        db.session.add(post)
+
+        # Always save a history record
+        revision = models.CmsPostRevision(post, user)
+        db.session.add(revision)
+
+        db.session.commit()
+
+        return redirect(url_for('.edit_post', post_id=post.id))
+
+    return render_template('easycms/create_post.html', form=form, post_type=post_type)
+
+
 @editor.route('/posts/<int:post_id>/edit', methods=['GET', 'POST'])
 @accesscontrol.can_edit_post
-def edit_post(post_type=None, post_id=None):
+def edit_post(post_id):
     settings = get_settings()
     ac = accesscontrol.get_access_control()
 
-    post = None
+    post = db.session.query(models.CmsPost).filter(models.CmsPost.id == post_id).first()
+    if not post:
+        abort(404)
+    post_type = post.post_type
 
     ajax = request.args.get('ajax') == 'true'
-
-    if post_id:
-        post = db.session.query(models.CmsPost).filter(models.CmsPost.id == post_id).first()
-        if not post:
-            abort(404)
-        post_type = post.post_type
-
-    published_help_text = 'The post will only be visible if this box is ticked'
-    if post and post.published:
-        published_help_text += '. Published %s' % timetool.format_datetime_long(post.published)
 
     categories = db.session.query(
         models.CmsCategory
@@ -396,40 +448,28 @@ def edit_post(post_type=None, post_id=None):
         flash('You must add at least one {0} category before creating a {0} post'.format(post_type), 'danger')
         return redirect(url_for('.view_categories'))
 
-    tagline_max_length = settings.tagline_max_length
+    main_fields = forms.get_post_important_fields(categories, post=post)
 
-    fields = [
-        easyforms.TextField('title', required=True, value=post.title if post else None, width=10)
+    main_fields.append(easyforms.CkeditorField('post', value=post.content if post else None, height=550, width=10,
+                                               on_change='handleCkeditorChange', config=settings.post_ckeditor_config))
+    
+    publish_fields = [
+        easyforms.TextField('currently-published', label='Published', value=post.published_string,
+                            readonly=True)
     ]
 
     if ac.can_publish_post():
-        fields.append(
-            easyforms.BooleanCheckbox('publish-post', default=post.published is not None if post else False,
-                                      help_text=published_help_text)
-        )
-    
-    fields += [
-        easyforms.ObjectListSelectField('category', categories, required=True, value=post.category if post else categories[0], width=3),
-        easyforms.TextField('tagline', required=True, value=post.tagline if post else None,
-                            help_text='A very short description of the post. You can copy + paste the first sentence here! Max {} characters'.format(tagline_max_length),
-                            width=10, validators=[validate.max_length(tagline_max_length)])
-    ]
-
-    if settings.post_main_image_enabled:
-        fields.append(
-            easyforms.FilemanagerField('main-image', label='Image', width=10,
-                                       value=post.main_image_url if post else None,
-                                       required=settings.post_main_image_required,
-                                       help_text='The main image to display for this post')
+        publish_fields.append(
+            customfields.PublishField('published', post=post, value=post.published, label='')
         )
 
-    fields.append(easyforms.CkeditorField('post', value=post.content if post else None, height=550, width=10,
-                                          on_change='handleCkeditorChange', config=settings.post_ckeditor_config))
+    form = Form(label_width=1, submit_text=None, form_type=easyforms.HORIZONTAL, read_form_data=False)
+    form.add_section('main', main_fields)
+    form.add_section('publish', publish_fields)
+    form.read_form_data()
 
-    form = Form(fields, label_width=1, submit_text=None, form_name='create-post', form_type=easyforms.HORIZONTAL)
-    
     user = accesscontrol.get_access_control().get_logged_in_cms_user()
-
+    
     if form.ready:
         if post:
             duplicate = db.session.query(
@@ -451,9 +491,9 @@ def edit_post(post_type=None, post_id=None):
             form.set_error('title', 'A post with this title already exists')
 
     if form.ready:
-        publish_post = False
+        published = post.published
         if ac.can_publish_post():
-            publish_post = form['publish-post'] or 'post-publish' in request.form
+            published = form['published']
 
         content = form['post']
         if content is None:
@@ -463,23 +503,13 @@ def edit_post(post_type=None, post_id=None):
         if settings.post_main_image_enabled:
             main_image_url = form['main-image']
 
-        if post:
-            post.category = form['category']
-            post.title = titlecase(form['title'])
-            post.content = content
-            post.tagline = form['tagline']
-            post.main_image_url = main_image_url
-        else:
-            post = models.CmsPost(
-                post_type, form['category'], titlecase(form['title']), content, user.author,
-                form['tagline'], publish_post, main_image_url=main_image_url
-            )
-            db.session.add(post)
+        post.category = form['category']
+        post.title = titlecase(form['title'])
+        post.content = content
+        post.tagline = form['tagline']
+        post.main_image_url = main_image_url
 
-        if publish_post and not post.published:
-            post.published = datetime.datetime.utcnow()
-        elif not publish_post and post.published:
-            post.published = None
+        post.published = published
 
         # Always save a history record
         revision = models.CmsPostRevision(post, user)
