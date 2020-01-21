@@ -57,8 +57,10 @@
 					<td>{{ post.category.name }}</td>
 					<td>{{ post.created | easycms_format_datetime_seconds }}</td>
 					<td>
-						{% if post.published %}
+						{% if post.is_published %}
 							{{ post.published | easycms_format_datetime_seconds }}
+						{% elif post.is_scheduled %}
+							<span class="info">Scheduled {{ post.published | easycms_format_datetime_seconds }}</span>
 						{% else %}
 							<span class="info">(not published)</span>
 						{% endif %}
