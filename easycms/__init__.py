@@ -127,7 +127,8 @@ def get_all_posts_query(post_type=None, allow_unpublished=False, session=None):
     if allow_unpublished:
         query = query.order_by(sqlalchemy.sql.func.coalesce(models.CmsPost.published, models.CmsPost.created).desc())
     else:
-        query = query.filter(models.CmsPost.published != None)
+        now = datetime.datetime.utcnow()
+        query = query.filter(models.CmsPost.published < now)
         query = query.order_by(models.CmsPost.published.desc())
 
     return query
@@ -157,8 +158,9 @@ def get_posts_by_category_query(post_type, category_code, allow_unpublished=Fals
             sqlalchemy.sql.func.coalesce(models.CmsPost.published, models.CmsPost.created).desc()
         )
     else:
+        now = datetime.datetime.utcnow()
         query = query.filter(
-            models.CmsPost.published != None
+            models.CmsPost.published < now
         ).order_by(
             models.CmsPost.published.desc()
         )

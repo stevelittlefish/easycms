@@ -444,6 +444,12 @@ def edit_post(post_id):
         models.CmsCategory.name
     ).all()
 
+    authors = db.session.query(
+        models.CmsAuthor
+    ).order_by(
+        models.CmsAuthor.name
+    ).all()
+
     if not categories:
         flash('You must add at least one {0} category before creating a {0} post'.format(post_type), 'danger')
         return redirect(url_for('.view_categories'))
@@ -461,6 +467,9 @@ def edit_post(post_id):
     if ac.can_publish_post():
         publish_fields.append(
             customfields.PublishField('published', post=post, value=post.published, label='')
+        )
+        publish_fields.append(
+            easyforms.ObjectListSelectField('author', authors, value=post.author)
         )
 
     form = Form(label_width=1, submit_text=None, form_type=easyforms.HORIZONTAL, read_form_data=False)
@@ -491,10 +500,6 @@ def edit_post(post_id):
             form.set_error('title', 'A post with this title already exists')
 
     if form.ready:
-        published = post.published
-        if ac.can_publish_post():
-            published = form['published']
-
         content = form['post']
         if content is None:
             content = ''
@@ -509,7 +514,9 @@ def edit_post(post_id):
         post.tagline = form['tagline']
         post.main_image_url = main_image_url
 
-        post.published = published
+        if ac.can_publish_post():
+            post.published = form['published']
+            post.author = form['author']
 
         # Always save a history record
         revision = models.CmsPostRevision(post, user)

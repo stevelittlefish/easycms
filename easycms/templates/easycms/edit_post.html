@@ -129,12 +129,7 @@
 			<div class="row">
 				<div class="col-sm-10 offset-sm-1">
 					<div class="button-list">
-						{% if post and (post.published or not access_control.can_publish_post()) %}
-							<input type="submit" class="btn btn-primary" name="post" value="Save">
-						{% else %}
-							<input type="submit" class="btn btn-secondary" name="post" value="Save">
-							<input type="submit" class="btn btn-primary" name="post-publish" value="Save and Publish">
-						{% endif %}
+						<input type="submit" class="btn btn-primary" name="post" value="Save">
 						{% if post %}
 							<a href="{{ url_for('.view_post_history', post_id=post.id) }}" class="btn btn-secondary">View Revision History</a>
 						{% endif %}
