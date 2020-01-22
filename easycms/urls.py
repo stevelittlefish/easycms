@@ -12,7 +12,7 @@ log = logging.getLogger(__name__)
 
 
 def create_new_post(post_type):
-    return url_for('easycms_editor.edit_post', post_type=post_type)
+    return url_for('easycms_editor.create_post', post_type=post_type)
 
 
 def view_categories():
