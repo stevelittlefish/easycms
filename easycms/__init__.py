@@ -102,6 +102,14 @@ def init(app, engine_or_connection, metadata=None, all_post_types=['post'], tabl
     log.info('EasyCMS v{} Initialisation Complete'.format(VERSION))
 
 
+def rollback_database_session():
+    """
+    If something happens to the database session this will roll back the current session.
+    You shouldn't need to use this but it might come in handy!
+    """
+    models.session.rollback()
+
+
 def get_all_users_query(session=None):
     if session is None:
         session = models.session
