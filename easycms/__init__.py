@@ -40,7 +40,7 @@ VERSION = '{}.{}.X'.format(MAJOR_VERSION, MINOR_VERSION)
 def init(app, engine_or_connection, metadata=None, all_post_types=['post'], table_prefix='cms',
          access_control_config=None, settings=None, page_defs=[], update_db=False):
 
-    global bind, session, post_types
+    global bind, post_types
 
     log.info('Initialising EasyCMS v{}'.format(VERSION))
     
