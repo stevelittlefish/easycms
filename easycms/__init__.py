@@ -5,12 +5,14 @@ Flask / SQLAlchemy CMS library
 import datetime
 import logging
 import re
+import functools
 
 import sqlalchemy.sql
 from littlefish.pager import SimplePager
 import flaskfilemanager
 from littlefish import util
 import sqlalchemy.exc
+from flask import g
 
 from . import models, accesscontrol
 from .editor import editor as blueprint  # noqa
@@ -102,14 +104,39 @@ def init(app, engine_or_connection, metadata=None, all_post_types=['post'], tabl
     log.info('EasyCMS v{} Initialisation Complete'.format(VERSION))
 
 
-def rollback_database_session():
+def db_pre_ping(f):
     """
-    If something happens to the database session this will roll back the current session.
-    You shouldn't need to use this but it might come in handy!
+    This decorator detects disconnects and resets the connection when they happen
     """
-    models.session.rollback()
+    @functools.wraps(f)
+    def decorated_function(*args, **kwargs):
+        do_db_ping = False
+
+        try:
+            if not hasattr(g, 'easy_cms_pre_pinged_database'):
+                g.easy_cms_pre_pinged_database = True
+                do_db_ping = True
+
+        except RuntimeError:
+            # Outside app context - just do nothing
+            pass
+
+        if do_db_ping:
+            # Ping the database and make sure it is still alive
+            try:
+                result = models.db.session.execute('SELECT 1').fetchall()
+            except sqlalchemy.exc.OperationalError:
+                log.error('Database has disconnected. Attempting recovery')
+                models.db.session.rollback()
+
+        result = f(*args, **kwargs)
+
+        return result
+
+    return decorated_function
 
 
+@db_pre_ping
 def get_all_users_query(session=None):
     if session is None:
         session = models.session
@@ -123,6 +150,7 @@ def get_all_users_query(session=None):
     return query
 
 
+@db_pre_ping
 def get_all_posts_query(post_type=None, allow_unpublished=False, session=None):
     if session is None:
         session = models.session
@@ -148,6 +176,7 @@ def get_all_posts_pager(page, num_per_page=10, post_type=None, allow_unpublished
     return SimplePager(num_per_page, page, query)
 
 
+@db_pre_ping
 def get_posts_by_category_query(post_type, category_code, allow_unpublished=False, session=None):
     if session is None:
         session = models.session
@@ -192,6 +221,7 @@ def get_posts_by_category_pager(post_type, category_code, page, num_per_page=10,
     return SimplePager(num_per_page, page, query)
 
 
+@db_pre_ping
 def get_posts_by_tag_query(post_type, tag_name, allow_unpublished=False, session=None):
     query = get_all_posts_query(post_type=post_type, allow_unpublished=allow_unpublished,
                                 session=session)
@@ -214,6 +244,7 @@ def get_posts_by_tag_pager(post_type, tag, page, num_per_page=10,
     return SimplePager(num_per_page, page, query)
 
 
+@db_pre_ping
 def get_post_by_code(post_type, code, allow_unpublished=False, session=None):
     if session is None:
         session = models.session
@@ -230,6 +261,7 @@ def get_post_by_code(post_type, code, allow_unpublished=False, session=None):
     return query.one_or_none()
 
 
+@db_pre_ping
 def get_all_pages_query(allow_disabled=False, session=None):
     if session is None:
         session = models.session
@@ -248,6 +280,7 @@ def get_all_pages_query(allow_disabled=False, session=None):
     return query
 
 
+@db_pre_ping
 def get_page_by_code(code, allow_disabled=True, session=None):
     query = get_all_pages_query(
         allow_disabled=allow_disabled, session=session
@@ -258,6 +291,7 @@ def get_page_by_code(code, allow_disabled=True, session=None):
     return query.one_or_none()
 
 
+@db_pre_ping
 def get_all_published_pages_query(allow_disabled=False, session=None):
     if session is None:
         session = models.session
@@ -288,6 +322,7 @@ def get_published_page_by_code(code, allow_disabled=True, session=None):
     return query.one_or_none()
 
 
+@db_pre_ping
 def get_category_by_code(post_type, code, session=None):
     if session is None:
         session = models.session
@@ -302,6 +337,7 @@ def get_category_by_code(post_type, code, session=None):
     return query.one_or_none()
 
 
+@db_pre_ping
 def get_all_categories(post_type, session=None):
     if session is None:
         session = models.session
@@ -317,6 +353,7 @@ def get_all_categories(post_type, session=None):
     return query.all()
 
 
+@db_pre_ping
 def get_all_tags(post_type, session=None):
     if session is None:
         session = models.session
@@ -332,6 +369,7 @@ def get_all_tags(post_type, session=None):
     return query.all()
 
 
+@db_pre_ping
 def get_special_tags(post_type=None, tag_type=None, external_code=None, session=None):
     if session is None:
         session = models.session
@@ -352,6 +390,7 @@ def get_special_tags(post_type=None, tag_type=None, external_code=None, session=
     return query.all()
 
 
+@db_pre_ping
 def get_comment_query(approved_only=True, show_deleted=False, session=None):
     if session is None:
         session = models.session
@@ -371,6 +410,7 @@ def get_comment_query(approved_only=True, show_deleted=False, session=None):
     return query
 
 
+@db_pre_ping
 def get_comment_by_id(comment_id, session=None):
     if session is None:
         session = models.session
@@ -382,6 +422,7 @@ def get_comment_by_id(comment_id, session=None):
     ).one_or_none()
 
 
+@db_pre_ping
 def get_all_authors_query(session=None):
     if session is None:
         session = models.session
