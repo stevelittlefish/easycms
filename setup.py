@@ -26,16 +26,16 @@ setup(
     ],
     install_requires=[
         'flaskfilemanager>=0.0.6',
-        'SQLAlchemy>=1.2.10',
-        'Flask>=1.0.2',
-        'Pillow>=5.2.0',
-        'requests>=2.19.1',
-        'easyforms>=0.1.13',
-        'littlefish>=0.0.25',
-        'titlecase>=0.12.0',
-        'beautifulsoup4>=4.6.0',
+        'SQLAlchemy>=2.4.2',
+        'Flask>=1.1.2',
+        'Pillow>=8.0.1',
+        'requests>=2.25.1',
+        'easyforms>=0.1.19',
+        'littlefish>=0.0.58',
+        'titlecase>=1.1.1',
+        'beautifulsoup4>=4.9.3',
         'unidecode>=1.0.23',
-        'lxml>=4.2.5'
+        'lxml>=4.6.2'
     ],
 )
 
