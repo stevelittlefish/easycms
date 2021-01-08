@@ -126,7 +126,7 @@ def db_pre_ping(f):
             try:
                 result = models.db.session.execute('SELECT 1').fetchall()
             except sqlalchemy.exc.OperationalError:
-                log.error('Database has disconnected. Attempting recovery')
+                log.warn('Database has disconnected. Attempting recovery')
                 models.db.session.rollback()
 
         result = f(*args, **kwargs)
