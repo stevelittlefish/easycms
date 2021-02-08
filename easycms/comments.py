@@ -8,7 +8,6 @@ import datetime
 
 import easyforms
 import easyforms.exceptions
-from easyforms.bs4 import Form
 import flask
 from flask import request, abort, flash
 
@@ -58,7 +57,9 @@ def get_comment_reply_html_field(name, value=None, required=False):
     return easyforms.CkeditorField(name, value=value, required=required, config=get_ckeditor_config())
 
 
-def create_and_process_comment_form(post, session=None, action='', form_type=easyforms.VERTICAL):
+def create_and_process_comment_form(post, session=None, action='', form_type=easyforms.VERTICAL,
+                                    submit_css_class='btn-primary btn-lg',
+                                    form_style=easyforms.styles.BOOTSTRAP_4):
     """
     COMMITS!
     """
@@ -89,10 +90,17 @@ def create_and_process_comment_form(post, session=None, action='', form_type=eas
         fields.append(get_comment_reply_html_field('content', required=True))
 
     fields.append(easyforms.HiddenField('reply-to', ''))
-    fields.append(easyforms.SubmitButton('Add Comment', css_class='btn-primary btn-lg'))
+    fields.append(easyforms.SubmitButton('Add Comment', css_class=submit_css_class))
 
     try:
-        form = Form(fields, submit_text=None, label_width=2, action=action, form_type=form_type)
+        form = easyforms.Form(
+            fields,
+            submit_text=None,
+            label_width=2,
+            action=action,
+            form_type=form_type,
+            style=form_style
+        )
     except easyforms.exceptions.FieldNotFound as e:
         # this is to catch the errors from people hacking the blog forms by submitting empty fields
         log.warn('Someone trying to hack us? %s' % e)
