@@ -4,6 +4,7 @@ Contains SQLAlchemy models for the CMS
 
 import logging
 import datetime
+import re
 
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, BigInteger, String, DateTime, ForeignKey, Table, UniqueConstraint,\
@@ -371,6 +372,33 @@ def init(table_prefix, metadata, bind):
                     return desc.strip()
 
             return ''
+
+        def get_word_count(self):
+            soup = BeautifulSoup(unidecode(self.content), 'html.parser')
+
+            all_text = ''
+
+            # We get the words within paragrphs
+            paragraphs = soup.findAll('p')
+            for s in paragraphs:
+                all_text += ' '.join(s.findAll(text=True))
+            
+            # Now divs
+            divs = soup.findAll('div')
+            for s in divs:
+                all_text += ' '.join(s.findAll(text=True))
+
+            # Mung the text
+            processed_text = re.sub(r'[^a-zA-Z\']+', ' ', all_text)
+            return len(processed_text.split(' '))
+
+        def get_reading_time(self):
+            word_count = self.get_word_count()
+            minutes = word_count // 130
+            if minutes < 2:
+                return '1 Minute'
+
+            return '{} Minutes'.format(minutes)
         
         def get_next_post(self, include_non_published=False):
             if include_non_published:
