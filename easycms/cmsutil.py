@@ -61,7 +61,7 @@ def process_and_save_snippet_image(image_url, always_local=False):
         full_image_url = image_url
 
     log.debug('Loading image via %s: %s' % (url_parts.scheme, full_image_url))
-    r = requests.get(full_image_url)
+    r = requests.get(full_image_url, verify=False)
     stream = io.BytesIO(r.content)
     image = PIL.Image.open(stream)
 
